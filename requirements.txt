@@ -1,2 +1,4 @@
 streamlit
 qrcode
+firebase-admin
+google-cloud-storage
