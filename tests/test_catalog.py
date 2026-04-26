@@ -1,6 +1,8 @@
 import unittest
+from datetime import datetime, timezone
 
 from services.catalog import get_photo_size_options, get_photo_sizes, get_service_catalog
+from services.order_views import group_orders_by_date
 
 
 class CatalogTests(unittest.TestCase):
@@ -42,6 +44,16 @@ class CatalogTests(unittest.TestCase):
         for config in photo_sizes.values():
             self.assertIn("width_mm", config)
             self.assertIn("height_mm", config)
+
+    def test_order_groups_are_newest_first_within_date(self):
+        orders = [
+            {"id": "old", "uploaded_at": datetime(2026, 4, 26, 8, 0, tzinfo=timezone.utc), "queue_rank": 1},
+            {"id": "new", "uploaded_at": datetime(2026, 4, 26, 10, 0, tzinfo=timezone.utc), "queue_rank": 1},
+        ]
+
+        groups = group_orders_by_date(orders, "Pending", date_field="uploaded_at")
+
+        self.assertEqual([row["id"] for row in groups[0][2]], ["new", "old"])
 
 
 if __name__ == "__main__":

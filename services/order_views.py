@@ -45,7 +45,15 @@ def group_orders_by_date(
         else:
             title = f"{prefix} for {upload_date.strftime('%d %b %Y')}"
             anchor = f"{prefix.lower().replace(' ', '-')}-{upload_date.isoformat()}"
-        daily_orders = sorted(grouped[upload_date], key=lambda row: (coerce_datetime(row.get(date_field)), row.get("queue_rank", 1)))
+        daily_orders = sorted(
+            grouped[upload_date],
+            key=lambda row: (
+                coerce_datetime(row.get(date_field)),
+                row.get("queue_rank", 1),
+                row.get("id", ""),
+            ),
+            reverse=True,
+        )
         sections.append((title, anchor, daily_orders, upload_date))
     return sections
 

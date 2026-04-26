@@ -33,6 +33,7 @@ from services.photo_layout import build_merged_photo_document
 
 MERGED_JOB_ROOT = Path("streamlit_uploads") / "merged_jobs"
 MERGED_JOB_ROOT.mkdir(parents=True, exist_ok=True)
+ORDER_PAGE_SIZE = 5
 
 
 def _apply_manager_table_styles() -> None:
@@ -717,6 +718,32 @@ def _matches_search(row: dict, term: str) -> bool:
     return matches_order_search(row, term)
 
 
+def _paginate_orders(orders: list[dict], section_key: str) -> list[dict]:
+    total_orders = len(orders)
+    if total_orders <= ORDER_PAGE_SIZE:
+        return orders
+
+    total_pages = (total_orders + ORDER_PAGE_SIZE - 1) // ORDER_PAGE_SIZE
+    page_key = f"page_{section_key}"
+    current_page = int(st.session_state.get(page_key, 1))
+    current_page = max(1, min(current_page, total_pages))
+    st.session_state[page_key] = current_page
+
+    start = (current_page - 1) * ORDER_PAGE_SIZE
+    end = start + ORDER_PAGE_SIZE
+
+    nav_cols = st.columns([1, 1.4, 1, 3], vertical_alignment="center")
+    if nav_cols[0].button("Prev", key=f"{page_key}_prev", use_container_width=True, disabled=current_page <= 1):
+        st.session_state[page_key] = current_page - 1
+        st.rerun()
+    nav_cols[1].caption(f"Page {current_page} of {total_pages} | Showing {start + 1}-{min(end, total_orders)} of {total_orders}")
+    if nav_cols[2].button("Next", key=f"{page_key}_next", use_container_width=True, disabled=current_page >= total_pages):
+        st.session_state[page_key] = current_page + 1
+        st.rerun()
+
+    return orders[start:end]
+
+
 def _render_order_table(
     title: str,
     orders: list[dict],
@@ -731,10 +758,11 @@ def _render_order_table(
 
     st.caption("Each row is one live work item. Shared pickup codes show which files belong to the same customer batch.")
     batch_map = _build_batch_map(orders)
+    visible_orders = _paginate_orders(orders, section_key)
 
     _render_header_row()
 
-    for index, order in enumerate(orders, start=1):
+    for index, order in enumerate(visible_orders, start=1):
         batch_info = batch_map.get(order["id"], {"pickup_code": "-", "count": 1, "position": 1})
         with st.container(border=True):
             st.markdown("<div class='manager-row-wrap'>", unsafe_allow_html=True)
