@@ -211,12 +211,16 @@ def render_upload_page(identity: dict) -> None:
             extra_uploads, extra_labels = render_other_documents_uploader(f"optional_{service_name}", t=t)
         else:
             uploader_label = t("Choose file(s)") if upload_required else t("Attach supporting file(s) if available")
-            uploaded_files = st.file_uploader(uploader_label, accept_multiple_files=True, type=None)
             captured_file = None
             camera_state_key = f"generic_camera_enabled_{service_name}"
-            if st.button("📷", key=f"{camera_state_key}_open", help=t("Take document photo"), type="secondary"):
-                st.session_state[camera_state_key] = True
+            upload_cols = st.columns([10, 1], vertical_alignment="bottom")
+            with upload_cols[0]:
+                uploaded_files = st.file_uploader(uploader_label, accept_multiple_files=True, type=None)
+            with upload_cols[1]:
+                if st.button("📷", key=f"{camera_state_key}_open", help=t("Take document photo"), type="secondary"):
+                    st.session_state[camera_state_key] = True
             if st.session_state.get(camera_state_key, False):
+                st.caption(t("On mobile, choose the rear/back camera from your browser camera switcher if it opens selfie mode."))
                 captured_file = st.camera_input(
                     t("Take document photo"),
                     key=f"generic_camera_{service_name}",
