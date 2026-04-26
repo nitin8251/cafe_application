@@ -8,7 +8,7 @@ from services.photo_layout import build_images_to_pdf, build_photo_sheet
 from services.upload_helpers import estimate_total
 
 
-PRINT_STYLE_OPTIONS = ["Single side", "Double side", "Color mix"]
+PRINT_STYLE_OPTIONS = ["Single side", "Double side"]
 PHOTO_FINISH_OPTIONS = ["Original", "White background", "Blue background", "Matte finish", "Glossy finish"]
 PHOTO_OUTPUT_OPTIONS = ["JPG", "PDF"]
 PDF_CONVERSION_OPTIONS = ["Merge into one PDF", "Separate PDFs"]
@@ -197,17 +197,10 @@ def build_file_overrides(
         t("Adjust each file neatly here. Copies, print side, and color mode stay grouped under the same order."),
     )
 
-    print_style_map = {
-        "Single": "Single side",
-        "Double": "Double side",
-        "Mix": "Color mix",
-    }
-    reverse_print_style_map = {value: key for key, value in print_style_map.items()}
     color_mode_map = {
-        "B/W": "Black & White",
+        "Black & White": "Black & White",
         "Color": "Color",
     }
-    reverse_color_mode_map = {value: key for key, value in color_mode_map.items()}
 
     for index, uploaded_file in enumerate(uploaded_files, start=1):
         with st.container(border=True):
@@ -231,9 +224,8 @@ def build_file_overrides(
                 label_visibility="collapsed",
             )
 
-            control_blocks = st.columns(3 if show_print_style and color_mode_options else 2 if show_print_style or color_mode_options else 1, gap="small")
-            block_index = 0
-            with control_blocks[block_index]:
+            copies_col, details_col = st.columns([0.85, 1.15], gap="small")
+            with copies_col:
                 st.markdown("<div class='upload-control-block'>", unsafe_allow_html=True)
                 st.markdown(f"<div class='upload-mini-label'>{t('Copies')}</div>", unsafe_allow_html=True)
                 copies = st.number_input(
@@ -245,50 +237,44 @@ def build_file_overrides(
                     label_visibility="collapsed",
                 )
                 st.markdown("</div>", unsafe_allow_html=True)
-            block_index += 1
+            with details_col:
+                st.markdown("<div class='upload-control-block'>", unsafe_allow_html=True)
+                option_cols = st.columns(2 if show_print_style and color_mode_options else 1, gap="small")
+                option_index = 0
+                if show_print_style:
+                    with option_cols[option_index]:
+                        st.markdown(f"<div class='upload-mini-label'>{t('Side')}</div>", unsafe_allow_html=True)
+                        print_style = st.selectbox(
+                            f"Print style #{index}",
+                            PRINT_STYLE_OPTIONS,
+                            key=f"file_print_style_{index}_{uploaded_file.name}",
+                            label_visibility="collapsed",
+                        )
+                    option_index += 1
+                else:
+                    print_style = ""
 
-            if show_print_style:
-                with control_blocks[block_index]:
-                    st.markdown("<div class='upload-control-block'>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='upload-mini-label'>{t('Side')}</div>", unsafe_allow_html=True)
-                    print_style_key = st.radio(
-                        f"Print style #{index}",
-                        list(print_style_map.keys()),
-                        index=0,
-                        key=f"file_print_style_{index}_{uploaded_file.name}",
-                        horizontal=True,
-                        label_visibility="collapsed",
-                    )
-                    st.markdown("</div>", unsafe_allow_html=True)
-                print_style = print_style_map[print_style_key]
-                block_index += 1
-            else:
-                print_style = ""
-
-            if color_mode_options:
-                with control_blocks[block_index]:
-                    st.markdown("<div class='upload-control-block'>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='upload-mini-label'>{t('Mode')}</div>", unsafe_allow_html=True)
-                    radio_options = [reverse_color_mode_map.get(option, option) for option in color_mode_options]
-                    default_mode = reverse_color_mode_map.get(DEFAULT_COLOR_MODE, radio_options[0])
-                    color_mode_key = st.radio(
-                        f"Mode #{index}",
-                        radio_options,
-                        index=radio_options.index(default_mode) if default_mode in radio_options else 0,
-                        key=f"file_color_mode_{index}_{uploaded_file.name}",
-                        horizontal=True,
-                        label_visibility="collapsed",
-                    )
-                    st.markdown("</div>", unsafe_allow_html=True)
-                color_mode = color_mode_map.get(color_mode_key, color_mode_key)
-            else:
-                color_mode = ""
+                if color_mode_options:
+                    with option_cols[option_index]:
+                        st.markdown(f"<div class='upload-mini-label'>{t('Mode')}</div>", unsafe_allow_html=True)
+                        default_mode = DEFAULT_COLOR_MODE if DEFAULT_COLOR_MODE in color_mode_options else color_mode_options[0]
+                        color_mode = st.selectbox(
+                            f"Mode #{index}",
+                            color_mode_options,
+                            index=color_mode_options.index(default_mode),
+                            key=f"file_color_mode_{index}_{uploaded_file.name}",
+                            label_visibility="collapsed",
+                        )
+                    color_mode = color_mode_map.get(color_mode, color_mode)
+                else:
+                    color_mode = ""
+                st.markdown("</div>", unsafe_allow_html=True)
 
             note_parts = []
             if show_print_style:
-                note_parts.append(f"{t('Side')}: {reverse_print_style_map.get(print_style, print_style)}")
+                note_parts.append(f"{t('Side')}: {print_style}")
             if color_mode:
-                note_parts.append(f"{t('Mode')}: {reverse_color_mode_map.get(color_mode, color_mode)}")
+                note_parts.append(f"{t('Mode')}: {color_mode}")
             if note_parts:
                 st.markdown(f"<div class='upload-note-chip'>{' | '.join(note_parts)}</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)

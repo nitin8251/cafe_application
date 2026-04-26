@@ -20,7 +20,6 @@
     * {
       box-sizing: border-box;
       font-family: sans-serif;
-      touch-action: manipulation;
     }
 
     body {
@@ -69,6 +68,7 @@
       aspect-ratio: 3 / 4;
       min-height: 220px;
       user-select: none;
+      touch-action: none;
     }
 
     video,
@@ -472,15 +472,19 @@
       const point = pointerPoint(event);
       const handle = event.target.dataset.handle || "move";
       dragState = {
+        pointerId: event.pointerId,
         handle,
         startX: point.x,
         startY: point.y,
         rect: { ...cropRect },
       };
+      if (cropBoxEl.setPointerCapture) {
+        cropBoxEl.setPointerCapture(event.pointerId);
+      }
     }
 
     function moveDrag(event) {
-      if (!dragState || !cropRect) {
+      if (!dragState || !cropRect || event.pointerId !== dragState.pointerId) {
         return;
       }
       event.preventDefault();
@@ -518,7 +522,16 @@
       updateCropBox();
     }
 
-    function endDrag() {
+    function endDrag(event) {
+      if (!dragState || (event && event.pointerId !== dragState.pointerId)) {
+        return;
+      }
+      if (cropBoxEl.releasePointerCapture && event) {
+        try {
+          cropBoxEl.releasePointerCapture(event.pointerId);
+        } catch (error) {
+        }
+      }
       dragState = null;
     }
 
@@ -560,12 +573,10 @@
       retakePhoto().catch((error) => setStatus(error?.message || "Could not reopen camera."));
     });
 
-    cropBoxEl.addEventListener("mousedown", beginDrag);
-    cropBoxEl.addEventListener("touchstart", beginDrag, { passive: false });
-    window.addEventListener("mousemove", moveDrag);
-    window.addEventListener("touchmove", moveDrag, { passive: false });
-    window.addEventListener("mouseup", endDrag);
-    window.addEventListener("touchend", endDrag);
+    cropBoxEl.addEventListener("pointerdown", beginDrag);
+    window.addEventListener("pointermove", moveDrag);
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
 
     window.addEventListener("beforeunload", stopStream);
     window.addEventListener(Streamlit.RENDER_EVENT, handleRender);
