@@ -154,32 +154,32 @@ def render_document_uploader(
     labels = []
     for index, item in enumerate(upload_labels, start=1):
         with st.container(border=True):
-            row = st.columns([1.3, 1])
+            row = st.columns([1.6, 0.58, 0.14], vertical_alignment="center")
             with row[0]:
                 st.markdown(f"**{item}**")
                 st.caption(t("Optional attachment for this service.") if optional else t("Upload the matching proof for this item."))
             with row[1]:
                 captured = None
                 camera_state_key = f"{key_prefix}_camera_enabled_{index}"
-                upload_cols = st.columns([5, 1], vertical_alignment="top")
-                with upload_cols[0]:
-                    uploaded = st.file_uploader(
-                        f"{t('Upload')} {item}",
-                        key=f"{key_prefix}_doc_{index}",
-                        label_visibility="collapsed",
-                        accept_multiple_files=False,
-                        type=None,
-                    )
-                with upload_cols[1]:
-                    camera_open = _camera_enabled(camera_state_key)
-                if camera_open:
+                uploaded = st.file_uploader(
+                    f"{t('Upload')} {item}",
+                    key=f"{key_prefix}_doc_{index}",
+                    label_visibility="collapsed",
+                    accept_multiple_files=False,
+                    type=None,
+                )
+            with row[2]:
+                camera_open = _camera_enabled(camera_state_key)
+            if camera_open:
+                with row[1]:
+                    st.caption(t("Use the browser camera switcher for rear camera on mobile."))
                     captured = st.camera_input(
                         f"{t('Take photo')} {item}",
                         key=f"{key_prefix}_camera_{index}",
                         help=t("Use the device camera to capture this document directly."),
                     )
-                if uploaded is None and captured is not None:
-                    uploaded = render_camera_capture(captured, f"{item}_{index}.jpg", f"{key_prefix}_camera_crop_{index}", t=t)
+            if uploaded is None and captured is not None:
+                uploaded = render_camera_capture(captured, f"{item}_{index}.jpg", f"{key_prefix}_camera_crop_{index}", t=t)
             if uploaded is not None:
                 convert_to_pdf = False
                 target_size_kb = 0
@@ -282,7 +282,7 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
 
     captured_other = None
     other_camera_state_key = f"{key_prefix}_other_camera_enabled"
-    other_upload_cols = st.columns([6, 1], vertical_alignment="top")
+    other_upload_cols = st.columns([0.7, 0.12], vertical_alignment="center")
     with other_upload_cols[0]:
         raw_uploads = st.file_uploader(
             t("Upload other documents"),

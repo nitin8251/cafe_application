@@ -168,7 +168,35 @@ def apply_global_styles() -> None:
                 border: 1px solid rgba(255,255,255,0.18) !important;
             }
             section[data-testid="stSidebar"] .stButton > button {
+                background: rgba(255,255,255,0.96) !important;
+                color: #0f172a !important;
                 min-height: 2.7rem !important;
+                width: 100% !important;
+                border-color: rgba(255,255,255,0.22) !important;
+            }
+            section[data-testid="stSidebar"] .stButton > button p,
+            section[data-testid="stSidebar"] .stButton > button span {
+                color: #0f172a !important;
+            }
+            section[data-testid="stSidebar"] .stButton > button:disabled,
+            section[data-testid="stSidebar"] .stButton > button[disabled] {
+                background: rgba(255,255,255,0.88) !important;
+                color: #334155 !important;
+                opacity: 1 !important;
+            }
+            section[data-testid="stSidebar"] .stTextInput input::placeholder {
+                color: #64748b !important;
+                opacity: 1 !important;
+            }
+            @media (max-width: 640px) {
+                section[data-testid="stSidebar"] {
+                    min-width: min(92vw, 360px) !important;
+                    max-width: min(92vw, 360px) !important;
+                }
+                .sidebar-panel {
+                    padding: 0.8rem !important;
+                    border-radius: 18px !important;
+                }
             }
             @media (max-width: 900px) {
                 .shell-grid {
