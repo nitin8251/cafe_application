@@ -33,8 +33,9 @@
       background: linear-gradient(180deg, var(--panel) 0%, var(--panel-soft) 100%);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 0.85rem;
+      padding: 0.72rem;
       box-shadow: 0 8px 20px rgba(64, 45, 31, 0.08);
+      max-width: 100%;
     }
 
     .camera-head {
@@ -66,7 +67,7 @@
       border: 1px solid var(--border);
       background: #120d0a;
       aspect-ratio: 3 / 4;
-      min-height: 260px;
+      min-height: 220px;
       user-select: none;
     }
 
@@ -125,7 +126,7 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0.55rem;
-      margin-top: 0.8rem;
+      margin-top: 0.68rem;
     }
 
     button {
@@ -133,11 +134,14 @@
       background: rgba(255, 255, 255, 0.96);
       color: var(--ink);
       border-radius: 14px;
-      min-height: 2.7rem;
-      padding: 0.55rem 0.7rem;
-      font-size: 0.88rem;
+      min-height: 2.45rem;
+      padding: 0.48rem 0.55rem;
+      font-size: 0.82rem;
       font-weight: 800;
       cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     button.primary {
@@ -161,11 +165,52 @@
 
     @media (max-width: 640px) {
       .camera-shell {
-        padding: 0.7rem;
+        padding: 0.56rem;
+        border-radius: 16px;
+      }
+
+      .camera-head {
+        gap: 0.45rem;
+        margin-bottom: 0.48rem;
+      }
+
+      .camera-title {
+        font-size: 0.88rem;
+      }
+
+      .camera-badge {
+        font-size: 0.68rem;
+        padding: 0.16rem 0.42rem;
       }
 
       .camera-actions {
         grid-template-columns: 1fr 1fr;
+        gap: 0.42rem;
+      }
+
+      .camera-stage {
+        min-height: 180px;
+      }
+
+      button {
+        min-height: 2.2rem;
+        font-size: 0.78rem;
+        padding: 0.42rem 0.46rem;
+      }
+
+      .camera-crop-handle {
+        width: 14px;
+        height: 14px;
+      }
+
+      .camera-crop-handle.nw { top: -8px; left: -8px; }
+      .camera-crop-handle.ne { top: -8px; right: -8px; }
+      .camera-crop-handle.sw { bottom: -8px; left: -8px; }
+      .camera-crop-handle.se { bottom: -8px; right: -8px; }
+
+      .camera-status {
+        margin-top: 0.55rem;
+        font-size: 0.76rem;
       }
     }
   </style>

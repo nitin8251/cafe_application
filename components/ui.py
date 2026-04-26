@@ -23,9 +23,6 @@ def apply_global_styles() -> None:
                     linear-gradient(180deg, #fffaf2 0%, #fbf3e6 48%, #f7ead9 100%);
                 color: var(--shell-ink) !important;
             }
-            .stApp * {
-                box-sizing: border-box;
-            }
             .stApp,
             .stApp p,
             .stApp label,
@@ -239,6 +236,10 @@ def apply_global_styles() -> None:
                 gap: 0.35rem;
                 overflow-x: auto !important;
                 scrollbar-width: thin;
+                padding-bottom: 0.2rem;
+            }
+            div[data-baseweb="tab-list"]::-webkit-scrollbar {
+                height: 6px;
             }
             div[data-baseweb="tab-list"] button[aria-selected="true"] {
                 background: rgba(180, 83, 9, 0.14) !important;
@@ -327,17 +328,30 @@ def apply_global_styles() -> None:
                 .block-container {
                     padding-left: 0.72rem !important;
                     padding-right: 0.72rem !important;
-                    padding-top: 0.5rem !important;
+                    padding-top: 0.42rem !important;
+                    padding-bottom: 1.2rem !important;
                     max-width: 100vw !important;
                 }
                 .shell-banner {
                     border-radius: 18px;
-                    padding: 0.8rem 0.95rem;
+                    padding: 0.72rem 0.88rem;
+                    margin-bottom: 0.55rem;
                 }
                 .shell-title {
-                    font-size: 1.35rem;
+                    font-size: 1.18rem;
                     line-height: 1.15;
                     word-break: break-word;
+                }
+                .page-intro {
+                    padding: 0.82rem 0.88rem !important;
+                    border-radius: 18px !important;
+                    margin-bottom: 0.72rem !important;
+                }
+                .page-title {
+                    font-size: 1.05rem !important;
+                }
+                .page-caption {
+                    font-size: 0.86rem !important;
                 }
                 div[data-testid="stHorizontalBlock"] {
                     gap: 0.45rem !important;
@@ -354,50 +368,52 @@ def apply_global_styles() -> None:
                 .stNumberInput input,
                 .stTextArea textarea,
                 .stSelectbox [data-baseweb="select"] {
-                    min-height: 2.85rem !important;
-                    font-size: 1rem !important;
+                    min-height: 2.7rem !important;
+                    font-size: 0.96rem !important;
                 }
                 .stFileUploader [data-testid="stFileUploaderDropzone"] {
-                    min-height: 3.8rem !important;
-                    padding: 0.65rem !important;
+                    min-height: 3.45rem !important;
+                    padding: 0.52rem !important;
                 }
                 .compact-upload-control {
                     max-width: none;
                     margin-left: 0;
                 }
                 .compact-upload-control [data-testid="stFileUploaderDropzone"] {
-                    min-height: 3.45rem !important;
-                    padding: 0.45rem 0.55rem !important;
+                    min-height: 3.15rem !important;
+                    padding: 0.35rem 0.48rem !important;
                 }
                 .camera-button-cell .stButton > button {
-                    width: 2.65rem !important;
-                    min-width: 2.65rem !important;
+                    width: 2.45rem !important;
+                    min-width: 2.45rem !important;
+                    min-height: 2.45rem !important;
+                    font-size: 0.95rem !important;
                 }
                 section[data-testid="stSidebar"] {
-                    min-width: min(92vw, 360px) !important;
-                    max-width: min(92vw, 360px) !important;
+                    min-width: min(88vw, 330px) !important;
+                    max-width: min(88vw, 330px) !important;
                 }
                 section[data-testid="stSidebar"] h1 {
-                    font-size: 1.25rem !important;
+                    font-size: 1.08rem !important;
                     line-height: 1.2 !important;
                 }
                 .sidebar-panel {
-                    padding: 0.72rem !important;
-                    border-radius: 18px !important;
-                    margin: 0.45rem 0 0.55rem !important;
+                    padding: 0.66rem !important;
+                    border-radius: 16px !important;
+                    margin: 0.36rem 0 0.48rem !important;
                 }
                 .sidebar-panel-title {
-                    font-size: 0.95rem !important;
+                    font-size: 0.9rem !important;
                 }
                 .sidebar-panel-caption {
-                    font-size: 0.78rem !important;
+                    font-size: 0.76rem !important;
                     margin-bottom: 0 !important;
                 }
                 div[data-testid="stMetric"] {
                     background: rgba(255,255,255,0.72);
                     border: 1px solid rgba(64,45,31,0.16);
                     border-radius: 14px;
-                    padding: 0.55rem 0.65rem;
+                    padding: 0.48rem 0.56rem;
                 }
             }
             @media (max-width: 900px) {
