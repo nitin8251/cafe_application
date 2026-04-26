@@ -145,9 +145,7 @@ def render_upload_page(identity: dict) -> None:
 
     default_service = st.session_state.get("selected_service_name")
     default_index = filtered_service_names.index(default_service) if default_service in filtered_service_names else 0
-    layout_cols = st.columns([1.55, 1], gap="large")
-
-    with layout_cols[0]:
+    with st.container():
         service_name = st.selectbox(t("Service"), filtered_service_names, index=default_index)
         st.session_state.selected_service_name = service_name
         service_config = service_catalog[service_name]
@@ -217,17 +215,17 @@ def render_upload_page(identity: dict) -> None:
             uploader_label = t("Choose file(s)") if upload_required else t("Attach supporting file(s) if available")
             captured_file = None
             camera_state_key = f"generic_camera_enabled_{service_name}"
-            upload_cols = st.columns([0.82, 0.18], vertical_alignment="bottom", gap="small")
+            upload_cols = st.columns([0.72, 0.28], vertical_alignment="center", gap="small")
             with upload_cols[0]:
                 st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
                 uploaded_files = st.file_uploader(uploader_label, accept_multiple_files=True, type=None)
                 st.markdown("</div>", unsafe_allow_html=True)
             with upload_cols[1]:
                 camera_open = bool(st.session_state.get(camera_state_key, False))
-                camera_label = "✕" if camera_open else "📷"
+                camera_label = "X" if camera_open else "📷"
                 camera_help = t("Close camera") if camera_open else t("Take document photo")
                 st.markdown("<div class='camera-button-cell'>", unsafe_allow_html=True)
-                if st.button(camera_label, key=f"{camera_state_key}_toggle", help=camera_help, type="secondary"):
+                if st.button(camera_label, key=f"{camera_state_key}_toggle", help=camera_help, type="secondary", use_container_width=True):
                     st.session_state[camera_state_key] = not camera_open
                     st.rerun()
                 st.markdown("</div>", unsafe_allow_html=True)
@@ -406,13 +404,14 @@ def render_upload_page(identity: dict) -> None:
             if result["customer_tier"] == "regular":
                 st.toast(t("Repeat customer detected. Added to priority follow-up."), icon="⭐")
 
-    with layout_cols[1]:
-        render_service_guidance_panel(
-            service_catalog,
-            filtered_service_names,
-            service_name,
-            service_config,
-            selected_variant_name,
-            service_search,
-            t=t,
-        )
+    st.markdown("<div class='service-guide-after-form'>", unsafe_allow_html=True)
+    render_service_guidance_panel(
+        service_catalog,
+        filtered_service_names,
+        service_name,
+        service_config,
+        selected_variant_name,
+        service_search,
+        t=t,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)

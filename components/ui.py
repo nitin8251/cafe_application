@@ -164,19 +164,19 @@ def apply_global_styles() -> None:
                 box-shadow: 0 8px 18px rgba(64, 45, 31, 0.05) !important;
             }
             .compact-upload-control {
-                max-width: 13.5rem;
+                max-width: 12rem;
                 margin-left: auto;
             }
             .compact-upload-control [data-testid="stFileUploaderDropzone"] {
                 min-height: 3.35rem !important;
-                padding: 0.42rem 0.58rem !important;
+                padding: 0.38rem 0.48rem !important;
                 display: flex !important;
                 align-items: center !important;
-                gap: 0.8rem !important;
+                gap: 0.52rem !important;
             }
             .compact-upload-control [data-testid="stFileUploaderDropzone"] button {
                 min-height: 2.25rem !important;
-                padding: 0.28rem 0.78rem !important;
+                padding: 0.28rem 0.62rem !important;
             }
             .compact-upload-control [data-testid="stFileUploaderDropzone"] small {
                 white-space: nowrap !important;
@@ -184,12 +184,15 @@ def apply_global_styles() -> None:
             .compact-upload-control [data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"] {
                 min-width: 5.5rem !important;
             }
+            .camera-button-cell {
+                width: 100%;
+            }
             .camera-button-cell .stButton > button {
-                min-width: 2.75rem !important;
-                width: 2.75rem !important;
                 min-height: 2.75rem !important;
-                padding: 0 !important;
-                font-size: 1.05rem !important;
+                padding: 0 0.42rem !important;
+                font-size: 0.82rem !important;
+                line-height: 1 !important;
+                white-space: nowrap !important;
             }
             .stFileUploader [data-testid="stFileUploaderDropzone"] * {
                 color: #2f2219 !important;
@@ -381,13 +384,13 @@ def apply_global_styles() -> None:
                 }
                 .compact-upload-control [data-testid="stFileUploaderDropzone"] {
                     min-height: 3.15rem !important;
-                    padding: 0.35rem 0.48rem !important;
+                    padding: 0.32rem 0.4rem !important;
                 }
                 .camera-button-cell .stButton > button {
-                    width: 2.45rem !important;
-                    min-width: 2.45rem !important;
                     min-height: 2.45rem !important;
-                    font-size: 0.95rem !important;
+                    font-size: 0.76rem !important;
+                    padding-left: 0.28rem !important;
+                    padding-right: 0.28rem !important;
                 }
                 section[data-testid="stSidebar"] {
                     min-width: min(88vw, 330px) !important;

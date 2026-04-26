@@ -105,8 +105,11 @@ def apply_upload_page_styles() -> None:
                 min-height: 100%;
             }
             .service-guide-panel {
-                position: sticky;
-                top: 1rem;
+                position: relative;
+                top: auto;
+            }
+            .service-guide-after-form {
+                margin-top: 1rem;
             }
             .service-guide-panel,
             .service-guide-panel p,
@@ -132,6 +135,14 @@ def apply_upload_page_styles() -> None:
                 border-radius: 18px;
                 padding: 0.4rem 0.55rem;
             }
+            @media (max-width: 900px) {
+                .service-guide-panel {
+                    position: static !important;
+                }
+                .service-guide-after-form {
+                    margin-top: 0.85rem;
+                }
+            }
             @media (max-width: 640px) {
                 .upload-file-topline {
                     flex-direction: column;
@@ -152,6 +163,10 @@ def apply_upload_page_styles() -> None:
                 .upload-file-badge {
                     font-size: 0.7rem;
                     padding: 0.18rem 0.44rem;
+                }
+                .upload-section-caption {
+                    margin-left: 0;
+                    font-size: 0.82rem;
                 }
             }
         </style>

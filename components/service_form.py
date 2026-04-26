@@ -71,10 +71,10 @@ def prepare_browser_camera_capture(camera_payload: dict | None, name: str = "cam
 
 def _camera_enabled(key: str) -> bool:
     is_open = bool(st.session_state.get(key, False))
-    label = "✕" if is_open else "📷"
+    label = "X" if is_open else "📷"
     help_text = "Close camera" if is_open else "Open camera"
     st.markdown("<div class='camera-button-cell'>", unsafe_allow_html=True)
-    clicked = st.button(label, key=f"{key}_toggle", help=help_text, type="secondary")
+    clicked = st.button(label, key=f"{key}_toggle", help=help_text, type="secondary", use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
     if clicked:
         st.session_state[key] = not is_open
@@ -179,14 +179,14 @@ def render_document_uploader(
     labels = []
     for index, item in enumerate(upload_labels, start=1):
         with st.container(border=True):
-            row = st.columns([1.45, 0.95], vertical_alignment="center", gap="medium")
+            row = st.columns([1.32, 1.05], vertical_alignment="center", gap="medium")
             with row[0]:
                 st.markdown(f"**{item}**")
                 st.caption(t("Optional attachment for this service.") if optional else t("Upload the matching proof for this item."))
             with row[1]:
                 captured = None
                 camera_state_key = f"{key_prefix}_camera_enabled_{index}"
-                action_cols = st.columns([0.82, 0.18], vertical_alignment="center", gap="small")
+                action_cols = st.columns([0.72, 0.28], vertical_alignment="center", gap="small")
                 with action_cols[0]:
                     st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
                     uploaded = st.file_uploader(
@@ -310,7 +310,7 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
 
     captured_other = None
     other_camera_state_key = f"{key_prefix}_other_camera_enabled"
-    other_upload_cols = st.columns([0.78, 0.22], vertical_alignment="center", gap="small")
+    other_upload_cols = st.columns([0.72, 0.28], vertical_alignment="center", gap="small")
     with other_upload_cols[0]:
         st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
         raw_uploads = st.file_uploader(
