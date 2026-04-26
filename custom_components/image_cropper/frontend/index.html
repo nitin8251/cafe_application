@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Cropper</title>
+  <script src="https://unpkg.com/streamlit-component-lib@2.0.0/dist/index.js"></script>
+  <style>
+    :root {
+      --ink: #2f2219;
+      --muted: #756457;
+      --border: rgba(64, 45, 31, 0.28);
+      --panel: rgba(255, 255, 255, 0.96);
+      --accent: #b45309;
+      --crop: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .crop-shell {
+      background: linear-gradient(180deg, var(--panel), rgba(255, 248, 238, 0.96));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 0.75rem;
+      box-shadow: 0 8px 20px rgba(64, 45, 31, 0.08);
+      max-width: 100%;
+    }
+
+    .crop-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .crop-title {
+      font-size: 0.98rem;
+      font-weight: 900;
+    }
+
+    .crop-help {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .crop-stage {
+      position: relative;
+      width: 100%;
+      min-height: 260px;
+      max-height: 460px;
+      aspect-ratio: 4 / 3;
+      background: #120d0a;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      user-select: none;
+      touch-action: none;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    .crop-box {
+      position: absolute;
+      border: 3px solid var(--crop);
+      border-radius: 14px;
+      box-shadow: 0 0 0 999px rgba(15, 23, 42, 0.22);
+      cursor: move;
+      touch-action: none;
+      z-index: 3;
+    }
+
+    .crop-handle {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: white;
+      border: 2px solid var(--crop);
+      box-shadow: 0 3px 9px rgba(15, 23, 42, 0.24);
+      z-index: 4;
+    }
+
+    .crop-handle.nw { top: -12px; left: -12px; cursor: nwse-resize; }
+    .crop-handle.ne { top: -12px; right: -12px; cursor: nesw-resize; }
+    .crop-handle.sw { bottom: -12px; left: -12px; cursor: nesw-resize; }
+    .crop-handle.se { bottom: -12px; right: -12px; cursor: nwse-resize; }
+
+    .crop-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+      margin-top: 0.65rem;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      border-radius: 14px;
+      min-height: 2.45rem;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.86rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+      color: #ffffff;
+      border-color: rgba(64, 45, 31, 0.18);
+    }
+
+    .crop-status {
+      min-height: 1.2rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 0.55rem;
+    }
+
+    @media (max-width: 640px) {
+      .crop-shell {
+        padding: 0.56rem;
+        border-radius: 16px;
+      }
+
+      .crop-stage {
+        min-height: 220px;
+        aspect-ratio: 3 / 4;
+      }
+
+      .crop-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .crop-handle {
+        width: 26px;
+        height: 26px;
+      }
+
+      .crop-handle.nw { top: -14px; left: -14px; }
+      .crop-handle.ne { top: -14px; right: -14px; }
+      .crop-handle.sw { bottom: -14px; left: -14px; }
+      .crop-handle.se { bottom: -14px; right: -14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="crop-shell">
+    <div class="crop-head">
+      <div>
+        <div class="crop-title" id="crop-label">Crop image</div>
+        <div class="crop-help">Drag the red box. Resize from the corners.</div>
+      </div>
+    </div>
+    <div class="crop-stage" id="stage">
+      <img id="source-image" alt="Image to crop" />
+      <div class="crop-box" id="crop-box">
+        <div class="crop-handle nw" data-handle="nw"></div>
+        <div class="crop-handle ne" data-handle="ne"></div>
+        <div class="crop-handle sw" data-handle="sw"></div>
+        <div class="crop-handle se" data-handle="se"></div>
+      </div>
+    </div>
+    <div class="crop-actions">
+      <button class="primary" id="apply-crop" type="button">Apply crop</button>
+      <button id="reset-crop" type="button">Reset crop box</button>
+    </div>
+    <div class="crop-status" id="crop-status"></div>
+  </div>
+
+  <script>
+    const imageEl = document.getElementById("source-image");
+    const stage = document.getElementById("stage");
+    const cropBoxEl = document.getElementById("crop-box");
+    const labelEl = document.getElementById("crop-label");
+    const statusEl = document.getElementById("crop-status");
+    const applyButton = document.getElementById("apply-crop");
+    const resetButton = document.getElementById("reset-crop");
+
+    let sourceDataUrl = "";
+    let cropRect = null;
+    let dragState = null;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function setStatus(message) {
+      statusEl.textContent = message || "";
+    }
+
+    function updateCropBox() {
+      if (!cropRect) {
+        return;
+      }
+      cropBoxEl.style.left = `${cropRect.x}px`;
+      cropBoxEl.style.top = `${cropRect.y}px`;
+      cropBoxEl.style.width = `${cropRect.width}px`;
+      cropBoxEl.style.height = `${cropRect.height}px`;
+    }
+
+    function resetCropBox() {
+      const width = stage.clientWidth;
+      const height = stage.clientHeight;
+      cropRect = {
+        x: width * 0.10,
+        y: height * 0.10,
+        width: width * 0.80,
+        height: height * 0.80,
+      };
+      updateCropBox();
+    }
+
+    function pointerPoint(event) {
+      const rect = stage.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      };
+    }
+
+    function beginDrag(event) {
+      if (!cropRect) {
+        return;
+      }
+      event.preventDefault();
+      const point = pointerPoint(event);
+      dragState = {
+        pointerId: event.pointerId,
+        handle: event.target.dataset.handle || "move",
+        startX: point.x,
+        startY: point.y,
+        rect: { ...cropRect },
+      };
+      if (cropBoxEl.setPointerCapture) {
+        cropBoxEl.setPointerCapture(event.pointerId);
+      }
+    }
+
+    function moveDrag(event) {
+      if (!dragState || event.pointerId !== dragState.pointerId) {
+        return;
+      }
+      event.preventDefault();
+      const point = pointerPoint(event);
+      const dx = point.x - dragState.startX;
+      const dy = point.y - dragState.startY;
+      const stageWidth = stage.clientWidth;
+      const stageHeight = stage.clientHeight;
+      const minSize = 44;
+      let next = { ...dragState.rect };
+
+      if (dragState.handle === "move") {
+        next.x = clamp(dragState.rect.x + dx, 0, stageWidth - dragState.rect.width);
+        next.y = clamp(dragState.rect.y + dy, 0, stageHeight - dragState.rect.height);
+      } else {
+        if (dragState.handle.includes("n")) {
+          const bottom = dragState.rect.y + dragState.rect.height;
+          next.y = clamp(dragState.rect.y + dy, 0, bottom - minSize);
+          next.height = bottom - next.y;
+        }
+        if (dragState.handle.includes("s")) {
+          next.height = clamp(dragState.rect.height + dy, minSize, stageHeight - dragState.rect.y);
+        }
+        if (dragState.handle.includes("w")) {
+          const right = dragState.rect.x + dragState.rect.width;
+          next.x = clamp(dragState.rect.x + dx, 0, right - minSize);
+          next.width = right - next.x;
+        }
+        if (dragState.handle.includes("e")) {
+          next.width = clamp(dragState.rect.width + dx, minSize, stageWidth - dragState.rect.x);
+        }
+      }
+
+      cropRect = next;
+      updateCropBox();
+    }
+
+    function endDrag(event) {
+      if (!dragState || (event && event.pointerId !== dragState.pointerId)) {
+        return;
+      }
+      if (cropBoxEl.releasePointerCapture && event) {
+        try {
+          cropBoxEl.releasePointerCapture(event.pointerId);
+        } catch (error) {
+        }
+      }
+      dragState = null;
+    }
+
+    function cropImage() {
+      if (!sourceDataUrl || !cropRect) {
+        return;
+      }
+      const img = new Image();
+      img.onload = () => {
+        const stageWidth = stage.clientWidth;
+        const stageHeight = stage.clientHeight;
+        const scale = Math.min(stageWidth / img.naturalWidth, stageHeight / img.naturalHeight);
+        const renderedWidth = img.naturalWidth * scale;
+        const renderedHeight = img.naturalHeight * scale;
+        const offsetX = (stageWidth - renderedWidth) / 2;
+        const offsetY = (stageHeight - renderedHeight) / 2;
+        const left = clamp(cropRect.x, offsetX, offsetX + renderedWidth);
+        const top = clamp(cropRect.y, offsetY, offsetY + renderedHeight);
+        const right = clamp(cropRect.x + cropRect.width, offsetX, offsetX + renderedWidth);
+        const bottom = clamp(cropRect.y + cropRect.height, offsetY, offsetY + renderedHeight);
+        const sx = Math.round((left - offsetX) / scale);
+        const sy = Math.round((top - offsetY) / scale);
+        const sw = Math.max(1, Math.round((right - left) / scale));
+        const sh = Math.max(1, Math.round((bottom - top) / scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = sw;
+        canvas.height = sh;
+        const context = canvas.getContext("2d");
+        context.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+        Streamlit.setComponentValue({
+          dataUrl: canvas.toDataURL("image/jpeg", 0.95),
+          mimeType: "image/jpeg",
+          crop: { x: sx, y: sy, width: sw, height: sh },
+        });
+        setStatus("Crop applied. This cropped image will be saved with the order.");
+      };
+      img.src = sourceDataUrl;
+    }
+
+    function handleRender(event) {
+      const args = event.detail.args || {};
+      labelEl.textContent = args.label || "Crop image";
+      if (args.dataUrl && args.dataUrl !== sourceDataUrl) {
+        sourceDataUrl = args.dataUrl;
+        imageEl.src = sourceDataUrl;
+        imageEl.onload = () => {
+          resetCropBox();
+          Streamlit.setFrameHeight(args.height || document.body.scrollHeight + 12);
+        };
+        setStatus("");
+      }
+      Streamlit.setFrameHeight(args.height || document.body.scrollHeight + 12);
+    }
+
+    cropBoxEl.addEventListener("pointerdown", beginDrag);
+    window.addEventListener("pointermove", moveDrag);
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("pointercancel", endDrag);
+    applyButton.addEventListener("click", cropImage);
+    resetButton.addEventListener("click", resetCropBox);
+    window.addEventListener("resize", resetCropBox);
+    window.addEventListener(Streamlit.RENDER_EVENT, handleRender);
+    Streamlit.setComponentReady();
+    Streamlit.setFrameHeight(document.body.scrollHeight + 12);
+  </script>
+</body>
+</html>

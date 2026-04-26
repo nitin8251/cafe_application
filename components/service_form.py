@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import streamlit as st
 from PIL import Image
 
+from custom_components.image_cropper import image_cropper
 from services.catalog import get_photo_size_options
 from services.photo_layout import build_single_photo_document
 
@@ -68,6 +69,39 @@ def prepare_browser_camera_capture(camera_payload: dict | None, name: str = "cam
     suffix = ".jpg" if "jpeg" in mime_type or "jpg" in mime_type else ".png"
     safe_name = Path(name).with_suffix(suffix).name
     return PreparedUpload(safe_name, base64.b64decode(encoded), mime_type)
+
+
+def _upload_to_data_url(uploaded) -> str:
+    mime_type = getattr(uploaded, "type", "image/jpeg") or "image/jpeg"
+    encoded = base64.b64encode(uploaded.getvalue()).decode("ascii")
+    return f"data:{mime_type};base64,{encoded}"
+
+
+def render_image_crop_option(uploaded, key_prefix: str, label: str, t=lambda text: text):
+    if uploaded is None or not _is_image_upload(uploaded):
+        return uploaded
+
+    crop_enabled = st.checkbox(
+        t("Crop image"),
+        key=f"{key_prefix}_crop_enabled",
+        help=t("Drag the red rectangle over the image and apply crop before creating the order."),
+    )
+    if not crop_enabled:
+        return uploaded
+
+    crop_payload = image_cropper(
+        key=f"{key_prefix}_drag_cropper",
+        data_url=_upload_to_data_url(uploaded),
+        label=label,
+        height=480,
+    )
+    cropped = prepare_browser_camera_capture(crop_payload, f"{Path(uploaded.name).stem}_cropped.jpg")
+    if cropped is not None:
+        st.success(t("Crop applied. The cropped image will be saved with this order."))
+        return cropped
+
+    st.caption(t("Adjust the red crop box and press Apply crop. Until then, the original image is used."))
+    return uploaded
 
 
 def _camera_enabled(key: str) -> bool:
@@ -200,6 +234,12 @@ def render_document_uploader(
                 convert_to_pdf = False
                 target_size_kb = 0
                 if _is_image_upload(uploaded):
+                    uploaded = render_image_crop_option(
+                        uploaded,
+                        f"{key_prefix}_{index}_{Path(uploaded.name).stem}",
+                        t("Crop image"),
+                        t=t,
+                    )
                     if _is_photo_document_label(item):
                         photo_options = get_photo_size_options()
                         label_by_name = {name: label for name, label, _ in photo_options}
@@ -337,6 +377,12 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
                 convert_to_pdf = False
                 target_size_kb = 0
                 if _is_image_upload(uploaded):
+                    uploaded = render_image_crop_option(
+                        uploaded,
+                        f"{key_prefix}_other_{index}_{Path(uploaded.name).stem}",
+                        t("Crop image"),
+                        t=t,
+                    )
                     convert_to_pdf = st.checkbox(
                         t("Convert image to PDF"),
                         key=f"{key_prefix}_other_convert_pdf_{index}",
