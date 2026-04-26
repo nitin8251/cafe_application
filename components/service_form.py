@@ -106,6 +106,34 @@ def render_camera_capture(captured, name: str, key_prefix: str, t=lambda text: t
     return prepare_camera_capture(captured, name, crop_box)
 
 
+def render_optional_notes(
+    label: str,
+    key_prefix: str,
+    placeholder: str = "",
+    button_label: str = "+ Add notes",
+    t=lambda text: text,
+) -> str:
+    open_key = f"{key_prefix}_notes_open"
+    if not st.session_state.get(open_key, False):
+        if st.button(t(button_label), key=f"{open_key}_button", type="secondary"):
+            st.session_state[open_key] = True
+            st.rerun()
+        return ""
+
+    action_cols = st.columns([1, 0.18], vertical_alignment="bottom")
+    with action_cols[0]:
+        notes = st.text_area(
+            t(label),
+            placeholder=placeholder,
+            key=f"{key_prefix}_notes",
+        )
+    with action_cols[1]:
+        if st.button("✕", key=f"{open_key}_close", help=t("Close notes"), type="secondary"):
+            st.session_state[open_key] = False
+            st.rerun()
+    return notes
+
+
 def _encode_image_to_target(image: Image.Image, target_size_kb: int | None = None) -> bytes:
     quality_steps = [95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35]
     target_bytes = int(target_size_kb * 1024) if target_size_kb else 0

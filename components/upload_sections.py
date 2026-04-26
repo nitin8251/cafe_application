@@ -2,6 +2,7 @@ import base64
 
 import streamlit as st
 
+from components.service_form import render_optional_notes
 from services.catalog import get_photo_size_options
 from services.photo_layout import build_images_to_pdf, build_photo_sheet
 from services.upload_helpers import estimate_total
@@ -482,7 +483,12 @@ def render_photo_service_fields(service_name: str, service_config: dict, uploade
 
 def render_jpg_to_pdf_fields(service_name: str, service_config: dict, uploaded_files: list, t=lambda text: text) -> tuple[float, dict, list]:
     conversion_mode = st.selectbox(t("PDF output"), PDF_CONVERSION_OPTIONS)
-    notes = st.text_area(t("Conversion notes"), placeholder=service_config.get("notes_placeholder", t("Add conversion notes...")))
+    notes = render_optional_notes(
+        "Conversion notes",
+        "jpg_to_pdf_conversion",
+        placeholder=service_config.get("notes_placeholder", t("Add conversion notes...")),
+        t=t,
+    )
     generated_uploads = []
     file_labels = build_document_labels(uploaded_files, "jpg_to_pdf")
 

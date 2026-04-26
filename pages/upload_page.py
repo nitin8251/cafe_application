@@ -4,6 +4,7 @@ from components.service_form import (
     render_camera_capture,
     render_custom_inputs,
     render_document_uploader,
+    render_optional_notes,
     render_other_documents_uploader,
     summarize_custom_inputs,
     validate_custom_inputs,
@@ -63,6 +64,8 @@ UPLOAD_TRANSLATIONS = {
     "Service rate": {"hi": "सेवा शुल्क", "mr": "सेवा दर"},
     "Use this when the desk needs to override the listed rate for this job.": {"hi": "जब इस काम के लिए सूचीबद्ध दर बदलनी हो तब इसका उपयोग करें।", "mr": "या कामासाठी सूचीतील दर बदलायचा असल्यास हे वापरा."},
     "Notes": {"hi": "नोट्स", "mr": "नोंदी"},
+    "+ Add notes": {"hi": "+ नोट्स जोड़ें", "mr": "+ नोंदी जोडा"},
+    "Close notes": {"hi": "नोट्स बंद करें", "mr": "नोंदी बंद करा"},
     "Add application details, page notes, payment notes, or pickup instructions.": {"hi": "आवेदन विवरण, पेज नोट्स, भुगतान नोट्स या पिकअप निर्देश जोड़ें।", "mr": "अर्ज तपशील, पेज नोट्स, पेमेंट नोट्स किंवा पिकअप सूचना जोडा."},
     "Estimated bill": {"hi": "अनुमानित बिल", "mr": "अंदाजित बिल"},
     "This is a desk service. A file is optional, so you can create the order even without attachments.": {"hi": "यह डेस्क सेवा है। फ़ाइल वैकल्पिक है, इसलिए बिना अटैचमेंट भी ऑर्डर बना सकते हैं।", "mr": "ही डेस्क सेवा आहे. फाइल ऐच्छिक आहे, त्यामुळे अटॅचमेंट नसतानाही ऑर्डर तयार करू शकता."},
@@ -308,12 +311,14 @@ def render_upload_page(identity: dict) -> None:
 
             notes = ""
             if service_config.get("service_group") in NOTES_SERVICE_GROUPS or service_config.get("allow_custom_rate"):
-                notes = st.text_area(
-                    t("Notes"),
+                notes = render_optional_notes(
+                    "Notes",
+                    f"service_{service_name}",
                     placeholder=service_config.get(
                         "notes_placeholder",
                         t("Add application details, page notes, payment notes, or pickup instructions."),
                     ),
+                    t=t,
                 )
 
             estimated_total = estimate_upload_total(unit_price, urgent, file_overrides, int(quantity))
