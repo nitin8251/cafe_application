@@ -213,7 +213,7 @@ def render_upload_page(identity: dict) -> None:
             uploader_label = t("Choose file(s)") if upload_required else t("Attach supporting file(s) if available")
             captured_file = None
             camera_state_key = f"generic_camera_enabled_{service_name}"
-            upload_cols = st.columns([0.72, 0.12], vertical_alignment="bottom")
+            upload_cols = st.columns([0.82, 0.18], vertical_alignment="bottom", gap="small")
             with upload_cols[0]:
                 uploaded_files = st.file_uploader(uploader_label, accept_multiple_files=True, type=None)
             with upload_cols[1]:

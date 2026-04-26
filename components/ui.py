@@ -10,7 +10,8 @@ def apply_global_styles() -> None:
                 --shell-muted: #74658c;
                 --shell-panel: rgba(255,255,255,0.82);
                 --shell-panel-strong: rgba(255,255,255,0.94);
-                --shell-border: rgba(167, 139, 250, 0.24);
+                --shell-border: rgba(50, 35, 72, 0.42);
+                --shell-border-soft: rgba(50, 35, 72, 0.26);
                 --shell-shadow: 0 18px 46px rgba(88, 28, 135, 0.10);
                 --shell-accent: #7c3aed;
                 --shell-accent-soft: rgba(124, 58, 237, 0.13);
@@ -33,7 +34,7 @@ def apply_global_styles() -> None:
                 background:
                     radial-gradient(circle at top right, rgba(255,255,255,0.46), transparent 22%),
                     linear-gradient(135deg, #8b5cf6 0%, #a78bfa 48%, #c084fc 100%);
-                border: 1px solid rgba(255,255,255,0.42);
+                border: 1px solid rgba(50,35,72,0.42);
                 border-radius: 24px;
                 color: white;
                 padding: 0.95rem 1.3rem;
@@ -48,7 +49,7 @@ def apply_global_styles() -> None:
             }
             .page-intro {
                 background: var(--shell-panel);
-                border: 1px solid var(--shell-border);
+                border: 1.4px solid var(--shell-border);
                 border-radius: 22px;
                 padding: 1rem 1.05rem;
                 margin-bottom: 0.95rem;
@@ -76,7 +77,7 @@ def apply_global_styles() -> None:
             }
             .metric-strip {
                 background: var(--shell-panel-strong);
-                border: 1px solid var(--shell-border);
+                border: 1.4px solid var(--shell-border);
                 border-radius: 18px;
                 padding: 0.85rem 0.95rem;
                 box-shadow: 0 12px 26px rgba(148, 163, 184, 0.08);
@@ -103,13 +104,35 @@ def apply_global_styles() -> None:
             .stTextArea textarea,
             .stSelectbox [data-baseweb="select"],
             .stMultiSelect [data-baseweb="select"],
-            .stNumberInput input {
+            .stNumberInput input,
+            .stDateInput input {
                 border-radius: 16px !important;
+                border: 1.4px solid var(--shell-border) !important;
+                background: rgba(255,255,255,0.72) !important;
+                box-shadow: 0 8px 18px rgba(88, 28, 135, 0.05) !important;
+            }
+            .stTextInput input,
+            .stTextArea textarea,
+            .stNumberInput input,
+            .stDateInput input {
+                color: #25143f !important;
+            }
+            .stFileUploader [data-testid="stFileUploaderDropzone"] {
+                border: 1.6px solid var(--shell-border) !important;
+                background: rgba(255,255,255,0.64) !important;
+                border-radius: 16px !important;
+                min-height: 4.2rem !important;
+                box-shadow: 0 8px 18px rgba(88, 28, 135, 0.05) !important;
+            }
+            .stFileUploader [data-testid="stFileUploaderDropzone"] button {
+                border: 1.4px solid rgba(50,35,72,0.52) !important;
+                background: rgba(255,255,255,0.95) !important;
+                color: #25143f !important;
             }
             .stButton > button, .stDownloadButton > button, button[kind="primary"] {
                 border-radius: 14px !important;
                 font-weight: 800 !important;
-                border: 1px solid rgba(148,163,184,0.18) !important;
+                border: 1.4px solid rgba(50,35,72,0.42) !important;
                 transition: transform 0.16s ease, box-shadow 0.16s ease !important;
             }
             .stButton > button:hover, .stDownloadButton > button:hover {
@@ -122,6 +145,8 @@ def apply_global_styles() -> None:
             }
             div[data-baseweb="tab-list"] {
                 gap: 0.35rem;
+                overflow-x: auto !important;
+                scrollbar-width: thin;
             }
             div[data-baseweb="tab-list"] button[aria-selected="true"] {
                 background: rgba(124, 58, 237, 0.12) !important;
@@ -139,7 +164,7 @@ def apply_global_styles() -> None:
             }
             .sidebar-panel {
                 background: rgba(255,255,255,0.62);
-                border: 1px solid rgba(167,139,250,0.26);
+                border: 1.4px solid var(--shell-border);
                 border-radius: 20px;
                 padding: 0.95rem 0.95rem 0.9rem;
                 margin: 0.7rem 0 0.9rem;
@@ -167,14 +192,14 @@ def apply_global_styles() -> None:
             section[data-testid="stSidebar"] .stTextInput input {
                 background: rgba(255,255,255,0.96) !important;
                 color: #25143f !important;
-                border: 1px solid rgba(167,139,250,0.28) !important;
+                border: 1.4px solid var(--shell-border) !important;
             }
             section[data-testid="stSidebar"] .stButton > button {
                 background: rgba(255,255,255,0.96) !important;
                 color: #4c1d95 !important;
                 min-height: 2.7rem !important;
                 width: 100% !important;
-                border-color: rgba(124,58,237,0.22) !important;
+                border-color: rgba(50,35,72,0.42) !important;
             }
             section[data-testid="stSidebar"] .stButton > button p,
             section[data-testid="stSidebar"] .stButton > button span {
@@ -191,6 +216,32 @@ def apply_global_styles() -> None:
                 opacity: 1 !important;
             }
             @media (max-width: 640px) {
+                .block-container {
+                    padding-left: 0.8rem !important;
+                    padding-right: 0.8rem !important;
+                    max-width: 100vw !important;
+                }
+                .shell-banner {
+                    border-radius: 18px;
+                    padding: 0.8rem 0.95rem;
+                }
+                .shell-title {
+                    font-size: 1.35rem;
+                    line-height: 1.15;
+                    word-break: break-word;
+                }
+                div[data-testid="stHorizontalBlock"] {
+                    gap: 0.45rem !important;
+                }
+                .stButton > button {
+                    min-height: 2.65rem !important;
+                    padding-left: 0.55rem !important;
+                    padding-right: 0.55rem !important;
+                }
+                .stFileUploader [data-testid="stFileUploaderDropzone"] {
+                    min-height: 3.8rem !important;
+                    padding: 0.65rem !important;
+                }
                 section[data-testid="stSidebar"] {
                     min-width: min(92vw, 360px) !important;
                     max-width: min(92vw, 360px) !important;

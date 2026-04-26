@@ -158,7 +158,7 @@ def render_document_uploader(
     labels = []
     for index, item in enumerate(upload_labels, start=1):
         with st.container(border=True):
-            row = st.columns([1.6, 0.58, 0.14], vertical_alignment="center")
+            row = st.columns([1.45, 0.7, 0.18], vertical_alignment="center", gap="small")
             with row[0]:
                 st.markdown(f"**{item}**")
                 st.caption(t("Optional attachment for this service.") if optional else t("Upload the matching proof for this item."))
@@ -286,7 +286,7 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
 
     captured_other = None
     other_camera_state_key = f"{key_prefix}_other_camera_enabled"
-    other_upload_cols = st.columns([0.7, 0.12], vertical_alignment="center")
+    other_upload_cols = st.columns([0.82, 0.18], vertical_alignment="center", gap="small")
     with other_upload_cols[0]:
         raw_uploads = st.file_uploader(
             t("Upload other documents"),

@@ -29,28 +29,28 @@ def apply_upload_page_styles() -> None:
                 height: 1rem;
                 border-radius: 999px;
                 background:
-                    radial-gradient(circle at 30% 30%, #fef3c7 0%, #f59e0b 42%, rgba(245,158,11,0.08) 43%),
-                    linear-gradient(135deg, #0f766e 0%, #2563eb 100%);
-                box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.08);
+                    radial-gradient(circle at 30% 30%, #faf5ff 0%, #a78bfa 42%, rgba(167,139,250,0.08) 43%),
+                    linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+                box-shadow: 0 0 0 8px rgba(124, 58, 237, 0.10);
                 flex: 0 0 auto;
             }
             .upload-section-title {
-                color: #0f172a;
+                color: #25143f;
                 font-size: 1.22rem;
                 font-weight: 900;
                 line-height: 1.1;
             }
             .upload-section-caption {
-                color: #64748b;
+                color: #5b4b76;
                 font-size: 0.88rem;
                 margin: 0 0 0.85rem 1.7rem;
             }
             .upload-file-card {
-                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%);
-                border: 1px solid rgba(148,163,184,0.20);
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,245,255,0.95) 100%);
+                border: 1.4px solid rgba(50,35,72,0.36);
                 border-radius: 20px;
                 padding: 0.9rem 1rem 0.95rem;
-                box-shadow: 0 10px 24px rgba(148,163,184,0.08);
+                box-shadow: 0 10px 24px rgba(88,28,135,0.08);
                 margin-bottom: 0.8rem;
             }
             .upload-file-topline {
@@ -61,15 +61,16 @@ def apply_upload_page_styles() -> None:
                 margin-bottom: 0.65rem;
             }
             .upload-file-name {
-                color: #111827;
+                color: #25143f;
                 font-size: 1rem;
                 font-weight: 800;
                 line-height: 1.25;
                 word-break: break-word;
             }
             .upload-file-badge {
-                background: #eef2ff;
-                color: #3730a3;
+                background: #f3e8ff;
+                color: #5b21b6;
+                border: 1px solid rgba(50,35,72,0.28);
                 border-radius: 999px;
                 padding: 0.22rem 0.58rem;
                 font-size: 0.74rem;
@@ -77,7 +78,7 @@ def apply_upload_page_styles() -> None:
                 white-space: nowrap;
             }
             .upload-mini-label {
-                color: #64748b;
+                color: #74658c;
                 font-size: 0.74rem;
                 font-weight: 800;
                 text-transform: uppercase;
@@ -86,8 +87,9 @@ def apply_upload_page_styles() -> None:
             }
             .upload-note-chip {
                 display: inline-block;
-                background: #ecfeff;
-                color: #155e75;
+                background: #f3e8ff;
+                color: #5b21b6;
+                border: 1px solid rgba(50,35,72,0.28);
                 border-radius: 999px;
                 padding: 0.18rem 0.54rem;
                 font-size: 0.74rem;
