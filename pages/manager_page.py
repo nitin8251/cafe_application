@@ -44,22 +44,22 @@ def _apply_manager_table_styles() -> None:
                 display: grid;
                 grid-template-columns: 3.8fr 1fr 0.85fr 2.2fr;
                 gap: 0.65rem;
-                background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(250,245,255,0.98) 100%);
-                border: 1px solid rgba(167, 139, 250, 0.28);
+                background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,250,242,0.98) 100%);
+                border: 1px solid rgba(64, 45, 31, 0.24);
                 border-radius: 18px;
-                box-shadow: 0 8px 24px rgba(124, 58, 237, 0.10);
+                box-shadow: 0 8px 24px rgba(64, 45, 31, 0.09);
                 padding: 0.8rem 1rem;
                 margin: 0.8rem 0 1rem;
             }
             .manager-table-head div {
                 font-size: 0.78rem;
                 font-weight: 800;
-                color: #4c1d95;
+                color: #5f3818;
                 text-transform: uppercase;
                 letter-spacing: 0.04em;
             }
             .manager-cell-label {
-                color: #74658c;
+                color: #756457;
                 font-size: 0.72rem;
                 font-weight: 800;
                 text-transform: uppercase;
@@ -67,13 +67,13 @@ def _apply_manager_table_styles() -> None:
                 margin-bottom: 0.12rem;
             }
             .manager-cell-value {
-                color: #25143f;
+                color: #2f2219;
                 font-size: 0.96rem;
                 font-weight: 700;
                 line-height: 1.25;
             }
             .manager-cell-sub {
-                color: #5b4b76;
+                color: #756457;
                 font-size: 0.82rem;
                 margin-top: 0.12rem;
                 line-height: 1.25;
@@ -83,8 +83,8 @@ def _apply_manager_table_styles() -> None:
                 margin-top: 0.3rem;
                 padding: 0.16rem 0.48rem;
                 border-radius: 999px;
-                background: #f3e8ff;
-                color: #6d28d9;
+                background: #ffedd5;
+                color: #92400e;
                 font-size: 0.74rem;
                 font-weight: 800;
             }
@@ -99,7 +99,7 @@ def _apply_manager_table_styles() -> None:
                 margin-bottom: 0.16rem;
             }
             .manager-job-title {
-                color: #25143f;
+                color: #2f2219;
                 font-size: 1rem;
                 font-weight: 800;
                 line-height: 1.2;
@@ -108,19 +108,19 @@ def _apply_manager_table_styles() -> None:
                 display: inline-block;
                 padding: 0.14rem 0.45rem;
                 border-radius: 999px;
-                background: #f3e8ff;
-                color: #5b21b6;
+                background: #ffedd5;
+                color: #92400e;
                 font-size: 0.72rem;
                 font-weight: 800;
             }
             .manager-job-subline {
-                color: #5b4b76;
+                color: #756457;
                 font-size: 0.84rem;
                 line-height: 1.3;
                 margin-top: 0.08rem;
             }
             .manager-job-meta {
-                color: #7c3aed;
+                color: #0f766e;
                 font-size: 0.78rem;
                 font-weight: 700;
                 margin-top: 0.16rem;
@@ -134,16 +134,16 @@ def _apply_manager_table_styles() -> None:
                 font-weight: 800;
             }
             .manager-status-uploaded {
-                background: #ede9fe;
-                color: #5b21b6;
+                background: #e0f2fe;
+                color: #075985;
             }
             .manager-status-approved {
-                background: #f5d0fe;
-                color: #86198f;
+                background: #fef3c7;
+                color: #92400e;
             }
             .manager-status-printing {
-                background: #fce7f3;
-                color: #be185d;
+                background: #fee2e2;
+                color: #b91c1c;
             }
             .manager-status-completed {
                 background: #dcfce7;
@@ -154,10 +154,10 @@ def _apply_manager_table_styles() -> None:
             }
             div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"]:has(.manager-row-wrap) {
                 border-radius: 20px !important;
-                border: 1px solid rgba(167, 139, 250, 0.24) !important;
+                border: 1px solid rgba(64, 45, 31, 0.22) !important;
                 background:
-                    linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(250,245,255,0.97) 56%, rgba(245,243,255,0.94) 100%) !important;
-                box-shadow: 0 12px 30px rgba(124, 58, 237, 0.09);
+                    linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,250,242,0.97) 56%, rgba(247,234,217,0.94) 100%) !important;
+                box-shadow: 0 12px 30px rgba(64,45,31,0.08);
                 padding: 0.3rem 0.35rem !important;
             }
             .manager-row-wrap [data-testid="stButton"] button,
@@ -172,14 +172,14 @@ def _apply_manager_table_styles() -> None:
                 box-shadow: none !important;
             }
             .manager-summary-card {
-                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,245,255,0.96) 100%);
-                border: 1px solid rgba(167, 139, 250, 0.24);
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,250,242,0.96) 100%);
+                border: 1px solid rgba(64,45,31,0.22);
                 border-radius: 18px;
-                box-shadow: 0 10px 28px rgba(124, 58, 237, 0.09);
+                box-shadow: 0 10px 28px rgba(64,45,31,0.08);
                 padding: 0.9rem 1rem;
             }
             .manager-summary-title {
-                color: #74658c;
+                color: #756457;
                 font-size: 0.74rem;
                 font-weight: 800;
                 text-transform: uppercase;

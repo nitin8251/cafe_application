@@ -132,6 +132,13 @@ class PhotoLayoutTests(unittest.TestCase):
         self.assertGreater(len(preview_bytes), 0)
         self.assertEqual(summary["page_count"], 2)
 
+    def test_images_to_pdf_records_target_size(self):
+        upload = DummyUpload("target.jpg")
+        generated, _, summary = build_images_to_pdf([upload], target_size_kb=80)
+        self.assertEqual(generated.type, "application/pdf")
+        self.assertEqual(summary["target_size_kb"], 80)
+        self.assertGreater(generated.size, 0)
+
     def test_merged_photo_document_builds_pdf(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             first_path = Path(temp_dir) / "one.jpg"

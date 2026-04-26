@@ -30,28 +30,28 @@ def apply_upload_page_styles() -> None:
                 height: 1rem;
                 border-radius: 999px;
                 background:
-                    radial-gradient(circle at 30% 30%, #faf5ff 0%, #a78bfa 42%, rgba(167,139,250,0.08) 43%),
-                    linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
-                box-shadow: 0 0 0 8px rgba(124, 58, 237, 0.10);
+                    radial-gradient(circle at 30% 30%, #fff7ed 0%, #f59e0b 42%, rgba(245,158,11,0.08) 43%),
+                    linear-gradient(135deg, #3b2a1f 0%, #b45309 100%);
+                box-shadow: 0 0 0 8px rgba(180, 83, 9, 0.10);
                 flex: 0 0 auto;
             }
             .upload-section-title {
-                color: #25143f;
+                color: #2f2219;
                 font-size: 1.22rem;
                 font-weight: 900;
                 line-height: 1.1;
             }
             .upload-section-caption {
-                color: #5b4b76;
+                color: #756457;
                 font-size: 0.88rem;
                 margin: 0 0 0.85rem 1.7rem;
             }
             .upload-file-card {
-                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,245,255,0.95) 100%);
-                border: 1.4px solid rgba(50,35,72,0.36);
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,250,242,0.95) 100%);
+                border: 1.4px solid rgba(64,45,31,0.32);
                 border-radius: 20px;
                 padding: 0.9rem 1rem 0.95rem;
-                box-shadow: 0 10px 24px rgba(88,28,135,0.08);
+                box-shadow: 0 10px 24px rgba(64,45,31,0.08);
                 margin-bottom: 0.8rem;
             }
             .upload-file-topline {
@@ -62,16 +62,16 @@ def apply_upload_page_styles() -> None:
                 margin-bottom: 0.65rem;
             }
             .upload-file-name {
-                color: #25143f;
+                color: #2f2219;
                 font-size: 1rem;
                 font-weight: 800;
                 line-height: 1.25;
                 word-break: break-word;
             }
             .upload-file-badge {
-                background: #f3e8ff;
-                color: #5b21b6;
-                border: 1px solid rgba(50,35,72,0.28);
+                background: #ffedd5;
+                color: #92400e;
+                border: 1px solid rgba(64,45,31,0.24);
                 border-radius: 999px;
                 padding: 0.22rem 0.58rem;
                 font-size: 0.74rem;
@@ -79,7 +79,7 @@ def apply_upload_page_styles() -> None:
                 white-space: nowrap;
             }
             .upload-mini-label {
-                color: #74658c;
+                color: #756457;
                 font-size: 0.74rem;
                 font-weight: 800;
                 text-transform: uppercase;
@@ -88,9 +88,9 @@ def apply_upload_page_styles() -> None:
             }
             .upload-note-chip {
                 display: inline-block;
-                background: #f3e8ff;
-                color: #5b21b6;
-                border: 1px solid rgba(50,35,72,0.28);
+                background: #ffedd5;
+                color: #92400e;
+                border: 1px solid rgba(64,45,31,0.24);
                 border-radius: 999px;
                 padding: 0.18rem 0.54rem;
                 font-size: 0.74rem;
@@ -109,19 +109,19 @@ def apply_upload_page_styles() -> None:
             .service-guide-panel [data-testid="stMarkdownContainer"],
             .service-guide-panel [data-testid="stMarkdownContainer"] p,
             .service-guide-panel [data-testid="stCaptionContainer"] {
-                color: #25143f !important;
+                color: #2f2219 !important;
             }
             .service-guide-panel [data-testid="stCaptionContainer"],
             .service-guide-panel small {
-                color: #5b4b76 !important;
+                color: #756457 !important;
             }
             .service-guide-panel [role="radiogroup"] label,
             .service-guide-panel [role="radiogroup"] label * {
-                color: #25143f !important;
+                color: #2f2219 !important;
             }
             .service-guide-panel [data-testid="stRadio"] {
                 background: rgba(255,255,255,0.72);
-                border: 1.2px solid rgba(50,35,72,0.22);
+                border: 1.2px solid rgba(64,45,31,0.22);
                 border-radius: 18px;
                 padding: 0.4rem 0.55rem;
             }
@@ -483,6 +483,26 @@ def render_photo_service_fields(service_name: str, service_config: dict, uploade
 
 def render_jpg_to_pdf_fields(service_name: str, service_config: dict, uploaded_files: list, t=lambda text: text) -> tuple[float, dict, list]:
     conversion_mode = st.selectbox(t("PDF output"), PDF_CONVERSION_OPTIONS)
+    target_size_kb = 0
+    if uploaded_files:
+        compress_images = st.checkbox(
+            t("Compress images before PDF"),
+            key="jpg_to_pdf_compress_images",
+            help=t("Keep this off to use the original image quality."),
+        )
+        if compress_images:
+            original_size_kb = max(20, min(1000, round(max(uploaded_file.size for uploaded_file in uploaded_files) / 1024)))
+            target_size_kb = int(
+                st.slider(
+                    t("Target size per image (KB)"),
+                    min_value=20,
+                    max_value=1000,
+                    value=original_size_kb,
+                    step=10,
+                    key="jpg_to_pdf_target_size_kb",
+                    help=t("Each image is compressed before being added to the PDF. Final PDF size can be slightly larger."),
+                )
+            )
     notes = render_optional_notes(
         "Conversion notes",
         "jpg_to_pdf_conversion",
@@ -495,16 +515,17 @@ def render_jpg_to_pdf_fields(service_name: str, service_config: dict, uploaded_f
     if uploaded_files:
         try:
             if conversion_mode == "Merge into one PDF":
-                generated_upload, preview_bytes, summary = build_images_to_pdf(uploaded_files)
+                generated_upload, preview_bytes, summary = build_images_to_pdf(uploaded_files, target_size_kb or None)
                 generated_uploads = [generated_upload]
             else:
-                separate_items = [build_images_to_pdf([uploaded_file]) for uploaded_file in uploaded_files]
+                separate_items = [build_images_to_pdf([uploaded_file], target_size_kb or None) for uploaded_file in uploaded_files]
                 generated_uploads = [item[0] for item in separate_items]
                 preview_bytes = separate_items[0][1]
                 summary = {
                     "page_count": len(uploaded_files),
                     "generated_size_kb": round(sum(item[2]["generated_size_kb"] for item in separate_items), 2),
                     "generated_files": len(separate_items),
+                    "target_size_kb": target_size_kb or 0,
                 }
             encoded = base64.b64encode(preview_bytes).decode("utf-8")
             preview_cols = st.columns([2, 1])
@@ -520,6 +541,8 @@ def render_jpg_to_pdf_fields(service_name: str, service_config: dict, uploaded_f
                     st.write(f"{t('Output files')}: **{summary['generated_files']} PDFs**")
                 st.write(f"{t('Pages')}: **{summary['page_count']}**")
                 st.write(f"{t('Generated size')}: **{summary['generated_size_kb']} KB**")
+                if target_size_kb:
+                    st.write(f"{t('Target per image')}: **{target_size_kb} KB**")
         except Exception as exc:
             st.error(f"{t('Unable to prepare the PDF file')}: {exc}")
 
@@ -536,6 +559,7 @@ def render_jpg_to_pdf_fields(service_name: str, service_config: dict, uploaded_f
             "conversion_type": "jpg_to_pdf",
             "conversion_mode": "merge" if conversion_mode == "Merge into one PDF" else "separate",
             "page_count": len(uploaded_files or []),
+            "target_size_kb": target_size_kb,
         },
         "file_labels": file_labels,
     }

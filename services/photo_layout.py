@@ -363,8 +363,18 @@ def build_single_photo_document(
     return GeneratedUpload(file_name, generated_bytes, type=mime_type), preview_bytes, summary
 
 
-def build_images_to_pdf(uploaded_files: list) -> tuple[GeneratedUpload, bytes, dict]:
-    pages = [Image.open(BytesIO(uploaded_file.getvalue())).convert("RGB") for uploaded_file in uploaded_files]
+def _compress_image_for_pdf(image: Image.Image, target_size_kb: int | None = None) -> Image.Image:
+    if not target_size_kb:
+        return image
+    compressed = _encode_jpeg_to_target(image, target_size_kb)
+    return Image.open(BytesIO(compressed)).convert("RGB")
+
+
+def build_images_to_pdf(uploaded_files: list, target_size_kb: int | None = None) -> tuple[GeneratedUpload, bytes, dict]:
+    pages = [
+        _compress_image_for_pdf(Image.open(BytesIO(uploaded_file.getvalue())).convert("RGB"), target_size_kb)
+        for uploaded_file in uploaded_files
+    ]
     pdf_buffer = BytesIO()
     first_page, *other_pages = pages
     first_page.save(pdf_buffer, format="PDF", save_all=True, append_images=other_pages, resolution=DPI)
@@ -374,6 +384,7 @@ def build_images_to_pdf(uploaded_files: list) -> tuple[GeneratedUpload, bytes, d
     summary = {
         "page_count": len(pages),
         "generated_size_kb": round(len(pdf_bytes) / 1024, 2),
+        "target_size_kb": target_size_kb or 0,
     }
     return GeneratedUpload(file_name, pdf_bytes, type="application/pdf"), preview_bytes, summary
 
