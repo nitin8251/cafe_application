@@ -4,7 +4,7 @@ from pathlib import Path
 from dataclasses import dataclass
 
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from services.catalog import get_photo_size_options
 from services.photo_layout import build_single_photo_document
@@ -58,6 +58,20 @@ def _camera_enabled(key: str) -> bool:
     return bool(st.session_state.get(key, False))
 
 
+def _crop_overlay_preview(image: Image.Image, crop_box: tuple[int, int, int, int]) -> Image.Image:
+    preview = image.convert("RGBA")
+    overlay = Image.new("RGBA", preview.size, (15, 23, 42, 105))
+    mask = Image.new("L", preview.size, 180)
+    draw_mask = ImageDraw.Draw(mask)
+    draw_mask.rectangle(crop_box, fill=0)
+    preview.alpha_composite(Image.composite(overlay, Image.new("RGBA", preview.size, (0, 0, 0, 0)), mask))
+
+    draw = ImageDraw.Draw(preview)
+    line_width = max(3, round(min(preview.size) * 0.008))
+    draw.rectangle(crop_box, outline=(255, 66, 66, 255), width=line_width)
+    return preview.convert("RGB")
+
+
 def render_camera_capture(captured, name: str, key_prefix: str, t=lambda text: text):
     if captured is None:
         return None
@@ -81,7 +95,9 @@ def render_camera_capture(captured, name: str, key_prefix: str, t=lambda text: t
             st.warning(t("Crop area is too small. Adjust the edges."))
         else:
             crop_box = (left, top, right, bottom)
-            st.image(image.crop(crop_box), caption=t("Crop preview"), use_container_width=True)
+            preview_cols = st.columns(2)
+            preview_cols[0].image(_crop_overlay_preview(image, crop_box), caption=t("Selected crop area"), use_container_width=True)
+            preview_cols[1].image(image.crop(crop_box), caption=t("Final cropped photo"), use_container_width=True)
 
     return prepare_camera_capture(captured, name, crop_box)
 
