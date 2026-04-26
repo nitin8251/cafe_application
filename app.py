@@ -51,14 +51,14 @@ def get_current_identity() -> dict:
 
 def get_manager_settings() -> dict:
     if "manager" not in st.secrets:
-        return {"allowed_emails": [], "pin": ""}
+        return {"allowed_emails": [], "pin": str(st.secrets.get("manager_pin", "")).strip()}
 
     manager_config = dict(st.secrets["manager"])
     allowed_emails = manager_config.get("allowed_emails", [])
     if isinstance(allowed_emails, str):
         allowed_emails = [allowed_emails]
     manager_config["allowed_emails"] = [email.strip().lower() for email in allowed_emails]
-    manager_config["pin"] = str(manager_config.get("pin", "")).strip()
+    manager_config["pin"] = str(manager_config.get("pin") or st.secrets.get("manager_pin", "")).strip()
     return manager_config
 
 
@@ -101,14 +101,21 @@ def render_auth_panel(identity: dict, manager_settings: dict) -> tuple[bool, dic
         if not manager_email_ok:
             entered_pin = st.text_input("Manager PIN", type="password", key="manager_pin", placeholder="Enter manager PIN")
             if st.button("Unlock Manager", use_container_width=True):
+                entered_pin = str(entered_pin).strip()
                 if not pin_value:
                     st.session_state.manager_override = False
                     st.error("Manager PIN is not configured in Streamlit secrets. Add [manager] pin = \"your-pin\".")
+                elif not entered_pin:
+                    st.session_state.manager_override = False
+                    st.error("Please enter the manager PIN.")
+                elif entered_pin == pin_value:
+                    st.session_state.manager_override = True
+                    manager_override = True
+                    st.success("Manager unlocked.")
                 else:
-                    st.session_state.manager_override = entered_pin == pin_value
-                if pin_value and not st.session_state.manager_override:
+                    st.session_state.manager_override = False
+                    manager_override = False
                     st.error("Incorrect manager PIN.")
-                st.rerun()
 
         is_manager = manager_email_ok or manager_override
         if is_manager:
