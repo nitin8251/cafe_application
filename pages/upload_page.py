@@ -18,7 +18,6 @@ from components.upload_sections import (
     build_file_overrides,
     render_jpg_to_pdf_fields,
     render_photo_service_fields,
-    render_service_guidance_panel,
 )
 from services.catalog import get_service_catalog, get_service_groups
 from services.upload_helpers import (
@@ -400,15 +399,3 @@ def render_upload_page(identity: dict) -> None:
                 st.caption(t("This service was saved as a counter request without file storage."))
             if result["customer_tier"] == "regular":
                 st.toast(t("Repeat customer detected. Added to priority follow-up."), icon="⭐")
-
-    st.markdown("<div class='service-guide-after-form'>", unsafe_allow_html=True)
-    render_service_guidance_panel(
-        service_catalog,
-        filtered_service_names,
-        service_name,
-        service_config,
-        selected_variant_name,
-        service_search,
-        t=t,
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
