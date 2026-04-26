@@ -6,20 +6,20 @@ def apply_global_styles() -> None:
         """
         <style>
             :root {
-                --shell-ink: #0f172a;
-                --shell-muted: #64748b;
-                --shell-panel: rgba(255,255,255,0.84);
-                --shell-panel-strong: rgba(255,255,255,0.92);
-                --shell-border: rgba(148, 163, 184, 0.22);
-                --shell-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
-                --shell-accent: #ea580c;
-                --shell-accent-soft: rgba(234, 88, 12, 0.12);
+                --shell-ink: #25143f;
+                --shell-muted: #74658c;
+                --shell-panel: rgba(255,255,255,0.82);
+                --shell-panel-strong: rgba(255,255,255,0.94);
+                --shell-border: rgba(167, 139, 250, 0.24);
+                --shell-shadow: 0 18px 46px rgba(88, 28, 135, 0.10);
+                --shell-accent: #7c3aed;
+                --shell-accent-soft: rgba(124, 58, 237, 0.13);
             }
             .stApp {
                 background:
-                    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 23%),
-                    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.11), transparent 18%),
-                    linear-gradient(180deg, #fcfaf6 0%, #f6f1e9 56%, #f4efe6 100%);
+                    radial-gradient(circle at top right, rgba(196, 181, 253, 0.34), transparent 24%),
+                    radial-gradient(circle at bottom left, rgba(216, 180, 254, 0.24), transparent 22%),
+                    linear-gradient(180deg, #fbf7ff 0%, #f5edff 48%, #f0e7ff 100%);
                 color: var(--shell-ink);
             }
             .block-container {
@@ -31,13 +31,13 @@ def apply_global_styles() -> None:
                 position: relative;
                 overflow: hidden;
                 background:
-                    radial-gradient(circle at top right, rgba(251,191,36,0.28), transparent 18%),
-                    linear-gradient(135deg, #111827 0%, #1e293b 40%, #7c2d12 100%);
-                border: 1px solid rgba(255,255,255,0.08);
+                    radial-gradient(circle at top right, rgba(255,255,255,0.46), transparent 22%),
+                    linear-gradient(135deg, #8b5cf6 0%, #a78bfa 48%, #c084fc 100%);
+                border: 1px solid rgba(255,255,255,0.42);
                 border-radius: 24px;
                 color: white;
                 padding: 0.95rem 1.3rem;
-                box-shadow: 0 24px 50px rgba(15, 23, 42, 0.16);
+                box-shadow: 0 24px 50px rgba(124, 58, 237, 0.18);
                 margin-bottom: 0.75rem;
             }
             .shell-title {
@@ -64,13 +64,13 @@ def apply_global_styles() -> None:
                 margin-bottom: 0.22rem;
             }
             .page-title {
-                color: #111827;
+                color: #25143f;
                 font-size: 1.25rem;
                 font-weight: 900;
                 margin-bottom: 0.12rem;
             }
             .page-caption {
-                color: #475569;
+                color: #5b4b76;
                 font-size: 0.93rem;
                 line-height: 1.45;
             }
@@ -82,7 +82,7 @@ def apply_global_styles() -> None:
                 box-shadow: 0 12px 26px rgba(148, 163, 184, 0.08);
             }
             .metric-strip-label {
-                color: #64748b;
+                color: #74658c;
                 font-size: 0.74rem;
                 font-weight: 800;
                 text-transform: uppercase;
@@ -90,12 +90,12 @@ def apply_global_styles() -> None:
                 margin-bottom: 0.2rem;
             }
             .metric-strip-value {
-                color: #0f172a;
+                color: #25143f;
                 font-size: 1.2rem;
                 font-weight: 900;
             }
             .metric-strip-sub {
-                color: #475569;
+                color: #5b4b76;
                 font-size: 0.82rem;
                 margin-top: 0.15rem;
             }
@@ -124,35 +124,37 @@ def apply_global_styles() -> None:
                 gap: 0.35rem;
             }
             div[data-baseweb="tab-list"] button[aria-selected="true"] {
-                background: rgba(234, 88, 12, 0.10) !important;
-                color: #9a3412 !important;
+                background: rgba(124, 58, 237, 0.12) !important;
+                color: #5b21b6 !important;
             }
             section[data-testid="stSidebar"] {
                 background:
-                    linear-gradient(180deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.96) 100%);
-                color: white;
+                    radial-gradient(circle at top left, rgba(216,180,254,0.42), transparent 28%),
+                    linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
+                color: #25143f;
+                border-right: 1px solid rgba(167, 139, 250, 0.22);
             }
             section[data-testid="stSidebar"] * {
                 color: inherit;
             }
             .sidebar-panel {
-                background: rgba(255,255,255,0.08);
-                border: 1px solid rgba(255,255,255,0.12);
+                background: rgba(255,255,255,0.62);
+                border: 1px solid rgba(167,139,250,0.26);
                 border-radius: 20px;
                 padding: 0.95rem 0.95rem 0.9rem;
                 margin: 0.7rem 0 0.9rem;
-                box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+                box-shadow: 0 14px 30px rgba(124,58,237,0.10);
             }
             .sidebar-panel-title {
                 font-size: 1.02rem;
                 font-weight: 900;
                 margin-bottom: 0.22rem;
-                color: #ffffff;
+                color: #25143f;
             }
             .sidebar-panel-caption {
                 font-size: 0.84rem;
                 line-height: 1.45;
-                color: rgba(255,255,255,0.74);
+                color: #5b4b76;
                 margin-bottom: 0.7rem;
             }
             section[data-testid="stSidebar"] .stTextInput > label,
@@ -160,32 +162,32 @@ def apply_global_styles() -> None:
             section[data-testid="stSidebar"] .stMarkdown,
             section[data-testid="stSidebar"] p,
             section[data-testid="stSidebar"] label {
-                color: rgba(255,255,255,0.92) !important;
+                color: #25143f !important;
             }
             section[data-testid="stSidebar"] .stTextInput input {
                 background: rgba(255,255,255,0.96) !important;
-                color: #0f172a !important;
-                border: 1px solid rgba(255,255,255,0.18) !important;
+                color: #25143f !important;
+                border: 1px solid rgba(167,139,250,0.28) !important;
             }
             section[data-testid="stSidebar"] .stButton > button {
                 background: rgba(255,255,255,0.96) !important;
-                color: #0f172a !important;
+                color: #4c1d95 !important;
                 min-height: 2.7rem !important;
                 width: 100% !important;
-                border-color: rgba(255,255,255,0.22) !important;
+                border-color: rgba(124,58,237,0.22) !important;
             }
             section[data-testid="stSidebar"] .stButton > button p,
             section[data-testid="stSidebar"] .stButton > button span {
-                color: #0f172a !important;
+                color: #4c1d95 !important;
             }
             section[data-testid="stSidebar"] .stButton > button:disabled,
             section[data-testid="stSidebar"] .stButton > button[disabled] {
                 background: rgba(255,255,255,0.88) !important;
-                color: #334155 !important;
+                color: #6d5a87 !important;
                 opacity: 1 !important;
             }
             section[data-testid="stSidebar"] .stTextInput input::placeholder {
-                color: #64748b !important;
+                color: #8b7aa6 !important;
                 opacity: 1 !important;
             }
             @media (max-width: 640px) {
