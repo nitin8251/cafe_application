@@ -154,6 +154,24 @@ def apply_global_styles() -> None:
                 min-height: 4.2rem !important;
                 box-shadow: 0 8px 18px rgba(88, 28, 135, 0.05) !important;
             }
+            .compact-upload-control {
+                max-width: 15rem;
+                margin-left: auto;
+            }
+            .compact-upload-control [data-testid="stFileUploaderDropzone"] {
+                min-height: 3.75rem !important;
+                padding: 0.52rem 0.7rem !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.8rem !important;
+            }
+            .compact-upload-control [data-testid="stFileUploaderDropzone"] button {
+                min-height: 2.25rem !important;
+                padding: 0.28rem 0.78rem !important;
+            }
+            .compact-upload-control [data-testid="stFileUploaderDropzone"] small {
+                white-space: nowrap !important;
+            }
             .stFileUploader [data-testid="stFileUploaderDropzone"] * {
                 color: #25143f !important;
             }
@@ -305,6 +323,14 @@ def apply_global_styles() -> None:
                 .stFileUploader [data-testid="stFileUploaderDropzone"] {
                     min-height: 3.8rem !important;
                     padding: 0.65rem !important;
+                }
+                .compact-upload-control {
+                    max-width: none;
+                    margin-left: 0;
+                }
+                .compact-upload-control [data-testid="stFileUploaderDropzone"] {
+                    min-height: 3.45rem !important;
+                    padding: 0.45rem 0.55rem !important;
                 }
                 section[data-testid="stSidebar"] {
                     min-width: min(92vw, 360px) !important;

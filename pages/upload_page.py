@@ -215,7 +215,9 @@ def render_upload_page(identity: dict) -> None:
             camera_state_key = f"generic_camera_enabled_{service_name}"
             upload_cols = st.columns([0.82, 0.18], vertical_alignment="bottom", gap="small")
             with upload_cols[0]:
+                st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
                 uploaded_files = st.file_uploader(uploader_label, accept_multiple_files=True, type=None)
+                st.markdown("</div>", unsafe_allow_html=True)
             with upload_cols[1]:
                 camera_open = bool(st.session_state.get(camera_state_key, False))
                 camera_label = "✕" if camera_open else "📷"

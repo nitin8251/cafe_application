@@ -165,6 +165,7 @@ def render_document_uploader(
             with row[1]:
                 captured = None
                 camera_state_key = f"{key_prefix}_camera_enabled_{index}"
+                st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
                 uploaded = st.file_uploader(
                     f"{t('Upload')} {item}",
                     key=f"{key_prefix}_doc_{index}",
@@ -172,6 +173,7 @@ def render_document_uploader(
                     accept_multiple_files=False,
                     type=None,
                 )
+                st.markdown("</div>", unsafe_allow_html=True)
             with row[2]:
                 camera_open = _camera_enabled(camera_state_key)
             if camera_open:
@@ -288,6 +290,7 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
     other_camera_state_key = f"{key_prefix}_other_camera_enabled"
     other_upload_cols = st.columns([0.82, 0.18], vertical_alignment="center", gap="small")
     with other_upload_cols[0]:
+        st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
         raw_uploads = st.file_uploader(
             t("Upload other documents"),
             key=f"{key_prefix}_other_docs",
@@ -295,6 +298,7 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
             type=None,
             label_visibility="collapsed",
         )
+        st.markdown("</div>", unsafe_allow_html=True)
     with other_upload_cols[1]:
         other_camera_open = _camera_enabled(other_camera_state_key)
     if other_camera_open:
