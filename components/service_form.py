@@ -71,10 +71,13 @@ def prepare_browser_camera_capture(camera_payload: dict | None, name: str = "cam
     return PreparedUpload(safe_name, base64.b64decode(encoded), mime_type)
 
 
-def _upload_to_data_url(uploaded) -> str:
-    mime_type = getattr(uploaded, "type", "image/jpeg") or "image/jpeg"
-    encoded = base64.b64encode(uploaded.getvalue()).decode("ascii")
-    return f"data:{mime_type};base64,{encoded}"
+def _upload_to_data_url(uploaded, max_side: int = 1400) -> str:
+    image = Image.open(BytesIO(uploaded.getvalue())).convert("RGB")
+    image.thumbnail((max_side, max_side), Image.LANCZOS)
+    output = BytesIO()
+    image.save(output, format="JPEG", quality=92, optimize=True)
+    encoded = base64.b64encode(output.getvalue()).decode("ascii")
+    return f"data:image/jpeg;base64,{encoded}"
 
 
 def render_image_crop_option(uploaded, key_prefix: str, label: str, t=lambda text: text):
@@ -89,6 +92,7 @@ def render_image_crop_option(uploaded, key_prefix: str, label: str, t=lambda tex
     if not crop_enabled:
         return uploaded
 
+    st.caption(t("Crop editor loading below. Drag the red rectangle and press Apply crop."))
     crop_payload = image_cropper(
         key=f"{key_prefix}_drag_cropper",
         data_url=_upload_to_data_url(uploaded),

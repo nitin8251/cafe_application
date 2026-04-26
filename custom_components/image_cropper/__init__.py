@@ -6,7 +6,7 @@ import streamlit.components.v1 as components
 
 
 _component_func = components.declare_component(
-    "image_drag_cropper_v1",
+    "image_drag_cropper_v2",
     path=str((Path(__file__).parent / "frontend").resolve()),
 )
 

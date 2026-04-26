@@ -171,6 +171,15 @@ def _apply_manager_table_styles() -> None:
                 font-size: 0.78rem !important;
                 box-shadow: none !important;
             }
+            .manager-card-meta-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.7rem;
+                margin: 0.75rem 0;
+            }
+            .manager-actions-shell {
+                margin-top: 0.6rem;
+            }
             .manager-summary-card {
                 background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,250,242,0.96) 100%);
                 border: 1px solid rgba(64,45,31,0.22);
@@ -203,11 +212,26 @@ def _apply_manager_table_styles() -> None:
                 .manager-cell-label {
                     margin-top: 0.55rem;
                 }
+                .manager-card-meta-grid {
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0.45rem;
+                    margin: 0.65rem 0;
+                }
+                .manager-actions-shell div[data-testid="stHorizontalBlock"] {
+                    display: grid !important;
+                    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                    gap: 0.42rem !important;
+                }
+                .manager-actions-shell div[data-testid="stHorizontalBlock"] > div {
+                    width: auto !important;
+                    min-width: 0 !important;
+                }
                 .manager-row-wrap [data-testid="stButton"] button,
                 .manager-row-wrap [data-testid="stDownloadButton"] button {
-                    min-height: 2.55rem !important;
-                    font-size: 0.84rem !important;
-                    padding: 0.42rem 0.35rem !important;
+                    min-height: 2.35rem !important;
+                    font-size: 0.78rem !important;
+                    padding: 0.32rem 0.2rem !important;
+                    white-space: normal !important;
                 }
                 div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"]:has(.manager-row-wrap) {
                     padding: 0.55rem !important;
@@ -878,79 +902,85 @@ def _render_order_table(
         batch_info = batch_map.get(order["id"], {"pickup_code": "-", "count": 1, "position": 1})
         with st.container(border=True):
             st.markdown("<div class='manager-row-wrap'>", unsafe_allow_html=True)
-            row = st.columns([3.5, 1.05, 0.9, 2.05], gap="small")
-
-            with row[0]:
-                _render_job_cell_safe(order, batch_info)
-
+            _render_job_cell_safe(order, batch_info)
             retention_label = (
                 f"Locked until {_format_timestamp(order['locked_until'])}"
                 if order.get("locked_until")
                 else f"Expires {_format_timestamp(order.get('expires_at'))}"
             )
-            with row[1]:
-                st.markdown("<div class='manager-cell-label'>Status</div>", unsafe_allow_html=True)
-                st.markdown(_status_badge(order.get("status", "uploaded")), unsafe_allow_html=True)
-                st.markdown(f"<div class='manager-cell-sub'>{retention_label}</div>", unsafe_allow_html=True)
-
-            with row[2]:
-                _render_labeled_cell("Amount", f"Rs. {order.get('total_price', 0):.2f}", order.get("service_group", "-").title())
+            st.markdown(
+                f"""
+                <div class="manager-card-meta-grid">
+                    <div>
+                        <div class="manager-cell-label">Status</div>
+                        {_status_badge(order.get("status", "uploaded"))}
+                        <div class="manager-cell-sub">{retention_label}</div>
+                    </div>
+                    <div>
+                        <div class="manager-cell-label">Amount</div>
+                        <div class="manager-cell-value">Rs. {order.get('total_price', 0):.2f}</div>
+                        <div class="manager-cell-sub">{order.get("service_group", "-").title()}</div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
             preview_key = f"preview_{section_key}_{index}_{order['id']}"
             has_local_file = _has_local_preview(order)
-            with row[3]:
-                st.markdown("<div class='manager-cell-label'>Actions</div>", unsafe_allow_html=True)
-                top_actions = st.columns(3)
-                if top_actions[0].button(
-                    "View",
-                    key=preview_key,
+            st.markdown("<div class='manager-actions-shell'><div class='manager-cell-label'>Actions</div>", unsafe_allow_html=True)
+            top_actions = st.columns(3)
+            if top_actions[0].button(
+                "View",
+                key=preview_key,
+                use_container_width=True,
+                type="secondary",
+                disabled=not has_local_file,
+                help="Open file preview",
+            ):
+                _open_preview(order)
+
+            with top_actions[1]:
+                _render_download_button(order, f"download_{section_key}_{index}_{order['id']}", label="Save")
+
+            if allow_print_actions and order["status"] in {"uploaded", "approved"}:
+                if top_actions[2].button(
+                    "Start",
+                    key=f"print_{section_key}_{index}_{order['id']}",
                     use_container_width=True,
-                    type="secondary",
-                    disabled=not has_local_file,
-                    help="Open file preview",
+                    type="primary",
+                    help=_start_action_label(order),
                 ):
-                    _open_preview(order)
-
-                with top_actions[1]:
-                    _render_download_button(order, f"download_{section_key}_{index}_{order['id']}", label="Save")
-
-                if allow_print_actions and order["status"] in {"uploaded", "approved"}:
-                    if top_actions[2].button(
-                        "Start",
-                        key=f"print_{section_key}_{index}_{order['id']}",
-                        use_container_width=True,
-                        type="primary",
-                        help=_start_action_label(order),
-                    ):
-                        if order["status"] == "uploaded":
-                            approve_order(order["id"], manager_identity)
-                        set_order_printing(order["id"], manager_identity)
-                        if has_local_file:
-                            st.session_state.print_dialog_order_id = order["id"]
-                        st.rerun()
-                elif allow_print_actions and order["status"] == "printing":
-                    top_actions[2].button("Active", key=f"active_{section_key}_{index}_{order['id']}", use_container_width=True, disabled=True)
-                else:
-                    top_actions[2].empty()
-
-                bottom_actions = st.columns(3)
-                if bottom_actions[0].button("Drop", key=f"delete_{section_key}_{index}_{order['id']}", use_container_width=True, help="Delete this order"):
-                    delete_order(order["id"], manager_identity)
+                    if order["status"] == "uploaded":
+                        approve_order(order["id"], manager_identity)
+                    set_order_printing(order["id"], manager_identity)
+                    if has_local_file:
+                        st.session_state.print_dialog_order_id = order["id"]
                     st.rerun()
+            elif allow_print_actions and order["status"] == "printing":
+                top_actions[2].button("Active", key=f"active_{section_key}_{index}_{order['id']}", use_container_width=True, disabled=True)
+            else:
+                top_actions[2].empty()
 
-                if order["status"] != "expired":
-                    if bottom_actions[1].button("Hold", key=f"lock_{section_key}_{index}_{order['id']}", use_container_width=True, help="Lock retention for 7 days"):
-                        extend_retention(order["id"], manager_identity, days=7)
-                        st.rerun()
-                else:
-                    bottom_actions[1].empty()
+            bottom_actions = st.columns(3)
+            if bottom_actions[0].button("Drop", key=f"delete_{section_key}_{index}_{order['id']}", use_container_width=True, help="Delete this order"):
+                delete_order(order["id"], manager_identity)
+                st.rerun()
 
-                if order["status"] in {"approved", "printing"} or (not has_local_file and order["status"] == "uploaded"):
-                    if bottom_actions[2].button("Done", key=f"done_{section_key}_{index}_{order['id']}", use_container_width=True, help="Mark this order completed"):
-                        complete_order(order["id"], manager_identity)
-                        st.rerun()
-                else:
-                    bottom_actions[2].empty()
+            if order["status"] != "expired":
+                if bottom_actions[1].button("Hold", key=f"lock_{section_key}_{index}_{order['id']}", use_container_width=True, help="Lock retention for 7 days"):
+                    extend_retention(order["id"], manager_identity, days=7)
+                    st.rerun()
+            else:
+                bottom_actions[1].empty()
+
+            if order["status"] in {"approved", "printing"} or (not has_local_file and order["status"] == "uploaded"):
+                if bottom_actions[2].button("Done", key=f"done_{section_key}_{index}_{order['id']}", use_container_width=True, help="Mark this order completed"):
+                    complete_order(order["id"], manager_identity)
+                    st.rerun()
+            else:
+                bottom_actions[2].empty()
+            st.markdown("</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
 
