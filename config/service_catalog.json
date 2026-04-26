@@ -1,0 +1,453 @@
+{
+  "Document Print / Xerox": {
+    "unit_price": 5.0,
+    "service_group": "print",
+    "description": "Single counter flow for document printing and xerox work. Choose black and white or color per file.",
+    "pricing_mode": "per_unit",
+    "quantity_label": "Pages / copies",
+    "upload_required": true,
+    "show_print_style": true,
+    "show_color_mode": true,
+    "checklist": [
+      "Upload the document to print or copy",
+      "Set copies and print style for each file",
+      "Choose black and white or color per file",
+      "Mention any page range or special notes"
+    ],
+    "notes_placeholder": "Mention page range, paper size, xerox note, or any special print instruction.",
+    "color_modes": [
+      {
+        "label": "Black & White",
+        "unit_price": 5.0
+      },
+      {
+        "label": "Color",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  "Senior Citizen Card": {
+    "unit_price": 250.0,
+    "service_group": "government",
+    "description": "Senior citizen card application and support service.",
+    "pricing_mode": "flat",
+    "quantity_label": "Applications",
+    "upload_required": false,
+    "checklist": [
+      "Aadhaar card copy",
+      "Age proof document",
+      "Passport-size photo",
+      "Mobile number"
+    ],
+    "notes_placeholder": "Enter document checklist, application number, or follow-up notes."
+  },
+  "Aadhaar Address Update": {
+    "unit_price": 350.0,
+    "service_group": "government",
+    "description": "Address update assistance for Aadhaar-related service work.",
+    "pricing_mode": "flat",
+    "quantity_label": "Applications",
+    "upload_required": false,
+    "checklist": [
+      "Aadhaar number or Aadhaar copy",
+      "Address proof",
+      "Registered mobile number",
+      "Recent passport-size photo if required"
+    ],
+    "notes_placeholder": "Mention UID, supporting address proof, or correction notes."
+  },
+  "PAN Card": {
+    "unit_price": 400.0,
+    "service_group": "government",
+    "description": "PAN card application and correction support.",
+    "pricing_mode": "flat",
+    "quantity_label": "Applications",
+    "upload_required": false,
+    "checklist": [
+      "Aadhaar card copy",
+      "Address proof",
+      "Passport-size photo",
+      "Signature specimen"
+    ],
+    "variants": [
+      {
+        "label": "New PAN",
+        "unit_price": 400.0
+      },
+      {
+        "label": "Correction / Update",
+        "unit_price": 450.0
+      }
+    ],
+    "notes_placeholder": "Mention PAN type, correction request, or acknowledgement number."
+  },
+  "Ayushman Card": {
+    "unit_price": 250.0,
+    "service_group": "government",
+    "description": "Ayushman card service and beneficiary support.",
+    "pricing_mode": "flat",
+    "quantity_label": "Applications",
+    "upload_required": false,
+    "checklist": [
+      "Aadhaar card",
+      "Ration card or family ID",
+      "Registered mobile number"
+    ],
+    "notes_placeholder": "Enter family ID, scheme notes, or status reference."
+  },
+  "Property Card": {
+    "unit_price": 375.0,
+    "service_group": "government",
+    "description": "Property card download or service request support.",
+    "pricing_mode": "flat",
+    "quantity_label": "Requests",
+    "upload_required": false,
+    "checklist": [
+      "Property or survey details",
+      "Village / ward details",
+      "Owner name",
+      "Mobile number"
+    ],
+    "notes_placeholder": "Enter land record details, village, or request notes."
+  },
+  "Udyam Aadhaar": {
+    "unit_price": 400.0,
+    "service_group": "government",
+    "description": "Udyam registration and Aadhaar-linked business service support.",
+    "pricing_mode": "flat",
+    "quantity_label": "Registrations",
+    "upload_required": false,
+    "checklist": [
+      "Aadhaar card",
+      "PAN card",
+      "Business address details",
+      "Bank details and mobile number"
+    ],
+    "notes_placeholder": "Mention business name, category, or registration stage."
+  },
+  "Driving Licence": {
+    "unit_price": 400.0,
+    "service_group": "government",
+    "description": "Licence application help. Update the exact rate from the desk if needed.",
+    "pricing_mode": "flat",
+    "quantity_label": "Applications",
+    "upload_required": false,
+    "allow_custom_rate": true,
+    "checklist": [
+      "Aadhaar card",
+      "Passport-size photo",
+      "Mobile number",
+      "Existing licence details if applicable"
+    ],
+    "variants": [
+      {
+        "label": "Learner Licence (LL)",
+        "unit_price": 400.0
+      },
+      {
+        "label": "Permanent Licence (P.L.)",
+        "unit_price": 400.0
+      }
+    ],
+    "notes_placeholder": "Mention LL or P.L., slot booking, or application stage."
+  },
+  "Lamination": {
+    "unit_price": 35.0,
+    "service_group": "finishing",
+    "description": "Card and A4 lamination options with or without print.",
+    "pricing_mode": "flat",
+    "quantity_label": "Pieces",
+    "upload_required": false,
+    "checklist": [
+      "Printed document or card to laminate",
+      "Mention lamination size needed",
+      "Ask the desk if print is also required"
+    ],
+    "variants": [
+      {
+        "label": "Card Lamination",
+        "unit_price": 35.0
+      },
+      {
+        "label": "Laminated Download Card",
+        "unit_price": 70.0
+      },
+      {
+        "label": "A4 Lamination",
+        "unit_price": 60.0
+      }
+    ],
+    "notes_placeholder": "Mention card type, A4 sheet count, or whether print is already done."
+  },
+  "Electricity Bill Payment": {
+    "unit_price": 20.0,
+    "service_group": "utility",
+    "description": "Electricity bill service charge based on Rs. 20 per Rs. 1000 bill slab.",
+    "pricing_mode": "flat",
+    "quantity_label": "Bills",
+    "upload_required": false,
+    "slab_pricing": {
+      "slab_size": 1000.0,
+      "slab_rate": 20.0,
+      "input_label": "Bill amount"
+    },
+    "checklist": [
+      "Consumer number",
+      "Bill copy or bill amount",
+      "Payment amount",
+      "Mobile number for receipt"
+    ],
+    "notes_placeholder": "Enter consumer number, bill amount, or operator notes."
+  },
+  "Mobile Recharge Service": {
+    "unit_price": 20.0,
+    "service_group": "utility",
+    "description": "Recharge handling or recharge support service charge.",
+    "pricing_mode": "flat",
+    "quantity_label": "Recharges",
+    "upload_required": false,
+    "checklist": [
+      "Mobile number",
+      "Operator name",
+      "Recharge amount or plan"
+    ],
+    "notes_placeholder": "Enter mobile number, operator, or plan details."
+  },
+  "Money Transfer Service": {
+    "unit_price": 20.0,
+    "service_group": "utility",
+    "description": "Money transfer service charge based on Rs. 20 per Rs. 1000 transfer slab.",
+    "pricing_mode": "flat",
+    "quantity_label": "Transfers",
+    "upload_required": false,
+    "slab_pricing": {
+      "slab_size": 1000.0,
+      "slab_rate": 20.0,
+      "input_label": "Transfer amount"
+    },
+    "checklist": [
+      "Receiver account or transfer details",
+      "Transfer amount",
+      "Customer mobile number",
+      "Government ID if needed"
+    ],
+    "notes_placeholder": "Enter transfer amount, receiver details, or transaction notes."
+  },
+  "Bike Rental": {
+    "unit_price": 500.0,
+    "service_group": "rental",
+    "description": "Bike rental charged at Rs. 500 per day.",
+    "pricing_mode": "flat",
+    "quantity_label": "Rental days",
+    "upload_required": false,
+    "multiplier_pricing": {
+      "unit_label": "Rental days",
+      "unit_rate": 500.0,
+      "min_units": 1
+    },
+    "checklist": [
+      "Driving licence (optional upload)",
+      "ID proof",
+      "Rental duration",
+      "Security deposit if applicable"
+    ],
+    "optional_uploads": [
+      "Driving licence"
+    ],
+    "custom_inputs": [
+      {
+        "label": "Bike model / preference",
+        "type": "text"
+      },
+      {
+        "label": "Pickup date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "label": "Return date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "label": "Security deposit",
+        "type": "number"
+      }
+    ],
+    "notes_placeholder": "Enter rental days, bike model, or customer notes."
+  },
+  "Car Rental": {
+    "unit_price": 15.0,
+    "service_group": "rental",
+    "description": "Car rental charged at Rs. 15 per km.",
+    "pricing_mode": "flat",
+    "quantity_label": "Distance (km)",
+    "upload_required": false,
+    "multiplier_pricing": {
+      "unit_label": "Distance (km)",
+      "unit_rate": 15.0,
+      "min_units": 1
+    },
+    "checklist": [
+      "Travel distance",
+      "Pickup and drop details",
+      "Customer contact number",
+      "Driver requirement if any",
+      "Driving licence (optional upload)"
+    ],
+    "optional_uploads": [
+      "Driving licence"
+    ],
+    "custom_inputs": [
+      {
+        "label": "Pickup location",
+        "type": "text",
+        "required": true
+      },
+      {
+        "label": "Drop location",
+        "type": "text",
+        "required": true
+      },
+      {
+        "label": "Travel date",
+        "type": "date",
+        "required": true
+      },
+      {
+        "label": "Driver needed",
+        "type": "select",
+        "options": [
+          "No",
+          "Yes"
+        ]
+      }
+    ],
+    "notes_placeholder": "Enter travel route, total kilometers, or booking notes."
+  },
+  "Government Exam Form": {
+    "unit_price": 350.0,
+    "service_group": "desk",
+    "description": "Exam form filling support. Online fee is extra and should be noted separately.",
+    "pricing_mode": "flat",
+    "quantity_label": "Forms",
+    "upload_required": false,
+    "checklist": [
+      "Aadhaar card",
+      "Photo and signature",
+      "Education details",
+      "Email ID and mobile number",
+      "Portal fee amount"
+    ],
+    "variants": [
+      {
+        "label": "Standard Form Service",
+        "unit_price": 350.0
+      },
+      {
+        "label": "Complex Form Service",
+        "unit_price": 400.0
+      }
+    ],
+    "notes_placeholder": "Add exam name, portal fee, and student details."
+  },
+  "Photo Paper Sheet": {
+    "unit_price": 400.0,
+    "service_group": "photo",
+    "description": "Photo paper or color-point card job. Update size-specific pricing if needed.",
+    "pricing_mode": "flat",
+    "quantity_label": "Sheets",
+    "upload_required": true,
+    "allow_custom_rate": true,
+    "checklist": [
+      "Upload or share the photo artwork",
+      "Mention full sheet / half sheet / small card",
+      "Mention finish or background preference"
+    ],
+    "variants": [
+      {
+        "label": "Full Photo Paper Sheet",
+        "unit_price": 400.0
+      },
+      {
+        "label": "Half Photo Paper Sheet",
+        "unit_price": 400.0
+      },
+      {
+        "label": "Small Color Point Card",
+        "unit_price": 400.0
+      }
+    ],
+    "notes_placeholder": "Mention full sheet, half sheet, or card size requirement."
+  },
+  "Passport Photo Print": {
+    "unit_price": 30.0,
+    "service_group": "photo",
+    "description": "Create passport or visa-style photo sheets directly from an uploaded portrait.",
+    "pricing_mode": "flat",
+    "quantity_label": "Photo copies",
+    "upload_required": true,
+    "checklist": [
+      "Upload a clear front-facing portrait photo",
+      "Choose the photo size preset",
+      "Choose the number of photo copies needed",
+      "Select white or blue background if required"
+    ],
+    "notes_placeholder": "Mention passport office, visa type, or any crop instruction."
+  },
+  "JPG to PDF": {
+    "unit_price": 20.0,
+    "service_group": "photo",
+    "description": "Convert one or more JPG or image files into a single PDF document.",
+    "pricing_mode": "flat",
+    "quantity_label": "Conversions",
+    "upload_required": true,
+    "checklist": [
+      "Upload JPG, JPEG, or PNG image files",
+      "Arrange images in the order you want in the PDF",
+      "Add any special page or naming notes if needed"
+    ],
+    "notes_placeholder": "Mention page order, output name, or conversion notes."
+  },
+  "Scan to PDF": {
+    "unit_price": 5.0,
+    "service_group": "scan",
+    "description": "Scan physical pages into a single PDF or image set.",
+    "pricing_mode": "per_unit",
+    "quantity_label": "Pages",
+    "upload_required": false,
+    "checklist": [
+      "Physical document pages",
+      "Output format requirement",
+      "Email / WhatsApp destination if needed"
+    ],
+    "notes_placeholder": "Mention document count, output format, or file naming."
+  },
+  "Typing / Form Fill": {
+    "unit_price": 50.0,
+    "service_group": "desk",
+    "description": "Typing, drafting, and basic data-entry desk service.",
+    "pricing_mode": "flat",
+    "quantity_label": "Jobs",
+    "upload_required": false,
+    "allow_custom_rate": true,
+    "checklist": [
+      "Source document or handwritten notes",
+      "Language requirement",
+      "Delivery format needed"
+    ],
+    "notes_placeholder": "Mention typing language, page count, or dictation details."
+  },
+  "Passport Renewal": {
+    "unit_price": 1000.0,
+    "service_group": "desk",
+    "description": "New passport Issuance",
+    "pricing_mode": "flat",
+    "quantity_label": "Jobs",
+    "upload_required": false,
+    "checklist": [],
+    "required_uploads": [
+      "adharcard"
+    ]
+  }
+}

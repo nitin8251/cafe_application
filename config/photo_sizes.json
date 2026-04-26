@@ -1,0 +1,32 @@
+{
+  "Passport (35x45 mm)": {
+    "unit_price": 30.0,
+    "description": "Standard passport and visa size photo print",
+    "width_mm": 35,
+    "height_mm": 45
+  },
+  "4x6 inch": {
+    "unit_price": 20.0,
+    "description": "Regular glossy photo print",
+    "width_mm": 101.6,
+    "height_mm": 152.4
+  },
+  "5x7 inch": {
+    "unit_price": 35.0,
+    "description": "Medium frame-ready print",
+    "width_mm": 127.0,
+    "height_mm": 177.8
+  },
+  "A4 Photo Sheet": {
+    "unit_price": 80.0,
+    "description": "Large sheet for multiple photo copies",
+    "width_mm": 210.0,
+    "height_mm": 297.0
+  },
+  "Stamp Size (25x35 mm)": {
+    "unit_price": 25.0,
+    "description": "Small ID or form photo",
+    "width_mm": 25.0,
+    "height_mm": 35.0
+  }
+}

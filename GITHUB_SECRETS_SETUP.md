@@ -11,7 +11,6 @@ Add these repository secrets in GitHub:
 - `FIREBASE_TOKEN_URI`
 - `FIREBASE_AUTH_PROVIDER_CERT_URL`
 - `FIREBASE_CLIENT_CERT_URL`
-- `FIREBASE_STORAGE_BUCKET`
 
 How to add them:
 
@@ -25,4 +24,5 @@ Notes:
 - Put the full private key into `FIREBASE_PRIVATE_KEY`.
 - Keep the line breaks exactly as they appear in the service account key.
 - The workflow at `.github/workflows/firebase-secrets-check.yml` rebuilds `.streamlit/secrets.toml` during CI and validates that the required values are present.
+- File uploads are stored locally in `streamlit_uploads/`, so a Firebase Storage bucket is no longer required for this app.
 - This helps for GitHub Actions, but Streamlit Cloud still needs its own app secrets if the app is hosted there.

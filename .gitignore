@@ -1,5 +1,11 @@
 .streamlit/secrets.toml
+.env
+.env.*
 .venv/
 node_modules/
 __pycache__/
 *.pyc
+.pytest_cache/
+streamlit_health*.log
+streamlit_uploads/
+tests/__pycache__/
