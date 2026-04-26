@@ -211,14 +211,14 @@ def render_document_uploader(
     for index, item in enumerate(upload_labels, start=1):
         with st.container(border=True):
             st.markdown("<div class='required-upload-card'>", unsafe_allow_html=True)
-            st.markdown(f"**{item}**")
+            st.markdown(f"**{t(item)}**")
             st.caption(t("Optional attachment for this service.") if optional else t("Upload the matching proof for this item."))
 
             captured = None
             camera_state_key = f"{key_prefix}_camera_enabled_{index}"
             st.markdown("<div class='required-upload-actions'>", unsafe_allow_html=True)
             uploaded = st.file_uploader(
-                f"{t('Upload')} {item}",
+                f"{t('Upload')} {t(item)}",
                 key=f"{key_prefix}_doc_{index}",
                 label_visibility="collapsed",
                 accept_multiple_files=False,
@@ -228,7 +228,7 @@ def render_document_uploader(
             st.markdown("</div>", unsafe_allow_html=True)
             if camera_open:
                 captured = render_live_camera(
-                    f"{t('Take photo')} {item}",
+                    f"{t('Take photo')} {t(item)}",
                     key=f"{key_prefix}_camera_{index}",
                     t=t,
                 )
@@ -444,7 +444,7 @@ def render_custom_inputs(input_specs: list[dict], key_prefix: str, t=lambda text
 
         if field_type == "number":
             values[label] = st.number_input(
-                label,
+                t(label),
                 min_value=float(spec.get("min", 0.0)),
                 value=float(spec.get("default", spec.get("min", 0.0))),
                 step=float(spec.get("step", 1.0)),
@@ -453,15 +453,15 @@ def render_custom_inputs(input_specs: list[dict], key_prefix: str, t=lambda text
             )
         elif field_type == "textarea":
             values[label] = st.text_area(
-                label,
+                t(label),
                 value=str(spec.get("default", "")),
-                placeholder=placeholder,
+                placeholder=t(placeholder),
                 help=help_text,
                 key=key,
             )
         elif field_type == "date":
             values[label] = st.date_input(
-                label,
+                t(label),
                 value=spec.get("default", date.today()),
                 help=help_text,
                 key=key,
@@ -471,17 +471,18 @@ def render_custom_inputs(input_specs: list[dict], key_prefix: str, t=lambda text
             default = spec.get("default", options[0])
             default_index = options.index(default) if default in options else 0
             values[label] = st.selectbox(
-                label,
+                t(label),
                 options=options,
                 index=default_index,
+                format_func=lambda option: t(str(option)),
                 help=help_text,
                 key=key,
             )
         else:
             values[label] = st.text_input(
-                label,
+                t(label),
                 value=str(spec.get("default", "")),
-                placeholder=placeholder,
+                placeholder=t(placeholder),
                 help=help_text,
                 key=key,
             )

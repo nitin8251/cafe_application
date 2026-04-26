@@ -262,6 +262,7 @@ def build_file_overrides(
                         print_style = st.selectbox(
                             f"Print style #{index}",
                             PRINT_STYLE_OPTIONS,
+                            format_func=lambda option: t(option),
                             key=f"file_print_style_{index}_{uploaded_file.name}",
                             label_visibility="collapsed",
                         )
@@ -277,6 +278,7 @@ def build_file_overrides(
                             f"Mode #{index}",
                             color_mode_options,
                             index=color_mode_options.index(default_mode),
+                            format_func=lambda option: t(option),
                             key=f"file_color_mode_{index}_{uploaded_file.name}",
                             label_visibility="collapsed",
                         )
@@ -287,9 +289,9 @@ def build_file_overrides(
 
             note_parts = []
             if show_print_style:
-                note_parts.append(f"{t('Side')}: {print_style}")
+                note_parts.append(f"{t('Side')}: {t(print_style)}")
             if color_mode:
-                note_parts.append(f"{t('Mode')}: {color_mode}")
+                note_parts.append(f"{t('Mode')}: {t(color_mode)}")
             if note_parts:
                 st.markdown(f"<div class='upload-note-chip'>{' | '.join(note_parts)}</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
@@ -434,13 +436,13 @@ def render_photo_service_fields(service_name: str, service_config: dict, uploade
             caption["dop"] = caption_cols[field_column].text_input("DOP", placeholder="26/03/2021")
 
     output_cols = st.columns(2)
-    output_format = output_cols[0].selectbox(t("Download format"), PHOTO_OUTPUT_OPTIONS)
+    output_format = output_cols[0].selectbox(t("Download format"), PHOTO_OUTPUT_OPTIONS, format_func=lambda option: t(option))
     output_cols[1].caption(t("JPG is better for smaller files. PDF is better for printing and sharing."))
 
     info_cols = st.columns([1, 1, 2])
     info_cols[0].metric(t("Rate"), f"Rs. {size_config['unit_price']:.2f}")
     info_cols[1].metric(t("Cut Size"), f"{size_config['width_mm']} x {size_config['height_mm']} mm")
-    info_cols[2].caption(size_config.get("description", service_config.get("description", "")))
+    info_cols[2].caption(t(size_config.get("description", service_config.get("description", ""))))
 
     generated_uploads = []
     generated_layout = {}
@@ -526,7 +528,7 @@ def render_photo_service_fields(service_name: str, service_config: dict, uploade
 
 
 def render_jpg_to_pdf_fields(service_name: str, service_config: dict, uploaded_files: list, t=lambda text: text) -> tuple[float, dict, list]:
-    conversion_mode = st.selectbox(t("PDF output"), PDF_CONVERSION_OPTIONS)
+    conversion_mode = st.selectbox(t("PDF output"), PDF_CONVERSION_OPTIONS, format_func=lambda option: t(option))
     target_size_kb = 0
     if uploaded_files:
         compress_images = st.checkbox(
@@ -550,7 +552,7 @@ def render_jpg_to_pdf_fields(service_name: str, service_config: dict, uploaded_f
     notes = render_optional_notes(
         "Conversion notes",
         "jpg_to_pdf_conversion",
-        placeholder=service_config.get("notes_placeholder", t("Add conversion notes...")),
+        placeholder=t(service_config.get("notes_placeholder", t("Add conversion notes..."))),
         t=t,
     )
     generated_uploads = []
