@@ -21,7 +21,23 @@ def apply_global_styles() -> None:
                     radial-gradient(circle at top right, rgba(196, 181, 253, 0.34), transparent 24%),
                     radial-gradient(circle at bottom left, rgba(216, 180, 254, 0.24), transparent 22%),
                     linear-gradient(180deg, #fbf7ff 0%, #f5edff 48%, #f0e7ff 100%);
-                color: var(--shell-ink);
+                color: var(--shell-ink) !important;
+            }
+            .stApp,
+            .stApp p,
+            .stApp label,
+            .stApp span,
+            .stApp li,
+            .stApp div[data-testid="stMarkdownContainer"],
+            .stApp [data-testid="stMarkdownContainer"] p,
+            .stApp [data-testid="stCaptionContainer"],
+            .stApp [data-testid="stWidgetLabel"],
+            .stApp [data-testid="stWidgetLabel"] p {
+                color: var(--shell-ink) !important;
+            }
+            .stApp [data-testid="stCaptionContainer"],
+            .stApp small {
+                color: var(--shell-muted) !important;
             }
             .block-container {
                 max-width: 1180px;
@@ -108,21 +124,38 @@ def apply_global_styles() -> None:
             .stDateInput input {
                 border-radius: 16px !important;
                 border: 1.4px solid var(--shell-border) !important;
-                background: rgba(255,255,255,0.72) !important;
+                background: rgba(255,255,255,0.92) !important;
                 box-shadow: 0 8px 18px rgba(88, 28, 135, 0.05) !important;
+            }
+            .stSelectbox [data-baseweb="select"] *,
+            .stMultiSelect [data-baseweb="select"] *,
+            .stSelectbox [data-baseweb="select"] svg,
+            .stMultiSelect [data-baseweb="select"] svg {
+                color: #25143f !important;
+                fill: #25143f !important;
             }
             .stTextInput input,
             .stTextArea textarea,
             .stNumberInput input,
             .stDateInput input {
                 color: #25143f !important;
+                -webkit-text-fill-color: #25143f !important;
+            }
+            .stTextInput input::placeholder,
+            .stTextArea textarea::placeholder,
+            .stNumberInput input::placeholder {
+                color: #7b6b95 !important;
+                opacity: 1 !important;
             }
             .stFileUploader [data-testid="stFileUploaderDropzone"] {
                 border: 1.6px solid var(--shell-border) !important;
-                background: rgba(255,255,255,0.64) !important;
+                background: rgba(255,255,255,0.90) !important;
                 border-radius: 16px !important;
                 min-height: 4.2rem !important;
                 box-shadow: 0 8px 18px rgba(88, 28, 135, 0.05) !important;
+            }
+            .stFileUploader [data-testid="stFileUploaderDropzone"] * {
+                color: #25143f !important;
             }
             .stFileUploader [data-testid="stFileUploaderDropzone"] button {
                 border: 1.4px solid rgba(50,35,72,0.52) !important;
@@ -133,7 +166,23 @@ def apply_global_styles() -> None:
                 border-radius: 14px !important;
                 font-weight: 800 !important;
                 border: 1.4px solid rgba(50,35,72,0.42) !important;
+                color: #25143f !important;
+                background: rgba(255,255,255,0.95) !important;
                 transition: transform 0.16s ease, box-shadow 0.16s ease !important;
+            }
+            .stButton > button p,
+            .stButton > button span,
+            .stDownloadButton > button p,
+            .stDownloadButton > button span {
+                color: #25143f !important;
+            }
+            button[kind="primary"] {
+                background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+                color: #ffffff !important;
+            }
+            button[kind="primary"] p,
+            button[kind="primary"] span {
+                color: #ffffff !important;
             }
             .stButton > button:hover, .stDownloadButton > button:hover {
                 transform: translateY(-1px);
@@ -142,6 +191,9 @@ def apply_global_styles() -> None:
             div[data-baseweb="tab-list"] button {
                 border-radius: 12px !important;
                 font-weight: 700 !important;
+                color: #4c1d95 !important;
+                background: rgba(255,255,255,0.72) !important;
+                border: 1px solid rgba(50,35,72,0.28) !important;
             }
             div[data-baseweb="tab-list"] {
                 gap: 0.35rem;
@@ -149,8 +201,20 @@ def apply_global_styles() -> None:
                 scrollbar-width: thin;
             }
             div[data-baseweb="tab-list"] button[aria-selected="true"] {
-                background: rgba(124, 58, 237, 0.12) !important;
+                background: rgba(124, 58, 237, 0.16) !important;
                 color: #5b21b6 !important;
+            }
+            div[data-testid="stAlert"] {
+                background: rgba(255,255,255,0.90) !important;
+                border: 1px solid var(--shell-border-soft) !important;
+                color: #25143f !important;
+            }
+            div[data-testid="stAlert"] * {
+                color: #25143f !important;
+            }
+            div[data-testid="stVerticalBlockBorderWrapper"] {
+                background: rgba(255,255,255,0.66) !important;
+                border-color: var(--shell-border-soft) !important;
             }
             section[data-testid="stSidebar"] {
                 background:

@@ -100,6 +100,30 @@ def apply_upload_page_styles() -> None:
                 position: sticky;
                 top: 1rem;
             }
+            .service-guide-panel,
+            .service-guide-panel p,
+            .service-guide-panel li,
+            .service-guide-panel span,
+            .service-guide-panel div,
+            .service-guide-panel [data-testid="stMarkdownContainer"],
+            .service-guide-panel [data-testid="stMarkdownContainer"] p,
+            .service-guide-panel [data-testid="stCaptionContainer"] {
+                color: #25143f !important;
+            }
+            .service-guide-panel [data-testid="stCaptionContainer"],
+            .service-guide-panel small {
+                color: #5b4b76 !important;
+            }
+            .service-guide-panel [role="radiogroup"] label,
+            .service-guide-panel [role="radiogroup"] label * {
+                color: #25143f !important;
+            }
+            .service-guide-panel [data-testid="stRadio"] {
+                background: rgba(255,255,255,0.72);
+                border: 1.2px solid rgba(50,35,72,0.22);
+                border-radius: 18px;
+                padding: 0.4rem 0.55rem;
+            }
         </style>
         """,
         unsafe_allow_html=True,
