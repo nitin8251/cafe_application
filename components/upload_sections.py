@@ -97,6 +97,13 @@ def apply_upload_page_styles() -> None:
                 font-weight: 800;
                 margin-bottom: 0.35rem;
             }
+            .upload-control-block {
+                background: rgba(255,255,255,0.72);
+                border: 1px solid rgba(64,45,31,0.14);
+                border-radius: 16px;
+                padding: 0.58rem 0.62rem 0.45rem;
+                min-height: 100%;
+            }
             .service-guide-panel {
                 position: sticky;
                 top: 1rem;
@@ -124,6 +131,28 @@ def apply_upload_page_styles() -> None:
                 border: 1.2px solid rgba(64,45,31,0.22);
                 border-radius: 18px;
                 padding: 0.4rem 0.55rem;
+            }
+            @media (max-width: 640px) {
+                .upload-file-topline {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 0.35rem;
+                    margin-bottom: 0.5rem;
+                }
+                .upload-file-card {
+                    padding: 0.75rem 0.78rem 0.82rem;
+                }
+                .upload-control-block {
+                    padding: 0.5rem 0.55rem 0.38rem;
+                    border-radius: 14px;
+                }
+                .upload-file-name {
+                    font-size: 0.94rem;
+                }
+                .upload-file-badge {
+                    font-size: 0.7rem;
+                    padding: 0.18rem 0.44rem;
+                }
             }
         </style>
         """,
@@ -184,60 +213,73 @@ def build_file_overrides(
         with st.container(border=True):
             st.markdown(
                 f"""
-                <div class="upload-file-topline">
-                    <div class="upload-file-name">{uploaded_file.name}</div>
-                    <div class="upload-file-badge">File {index} | {round(uploaded_file.size / 1024, 2)} KB</div>
-                </div>
+                <div class="upload-file-card">
+                    <div class="upload-file-topline">
+                        <div class="upload-file-name">{uploaded_file.name}</div>
+                        <div class="upload-file-badge">File {index} | {round(uploaded_file.size / 1024, 2)} KB</div>
+                    </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-            controls = st.columns([1.2, 0.7, 1.05, 0.95], gap="small")
-            controls[0].markdown(f"<div class='upload-mini-label'>{t('Document Label')}</div>", unsafe_allow_html=True)
-            controls[1].markdown(f"<div class='upload-mini-label'>{t('Copies')}</div>", unsafe_allow_html=True)
-
-            document_label = controls[0].text_input(
+            st.markdown(f"<div class='upload-mini-label'>{t('Document Label')}</div>", unsafe_allow_html=True)
+            document_label = st.text_input(
                 f"Document label #{index}",
                 value="",
                 placeholder=t("Aadhaar card"),
                 key=f"file_label_{index}_{uploaded_file.name}",
                 label_visibility="collapsed",
             )
-            copies = controls[1].number_input(
-                f"{quantity_label} #{index}",
-                min_value=1,
-                max_value=500,
-                value=1,
-                key=f"file_copies_{index}_{uploaded_file.name}",
-                label_visibility="collapsed",
-            )
 
-            if show_print_style:
-                controls[2].markdown(f"<div class='upload-mini-label'>{t('Side')}</div>", unsafe_allow_html=True)
-                print_style_key = controls[2].radio(
-                    f"Print style #{index}",
-                    list(print_style_map.keys()),
-                    index=0,
-                    key=f"file_print_style_{index}_{uploaded_file.name}",
-                    horizontal=True,
+            control_blocks = st.columns(3 if show_print_style and color_mode_options else 2 if show_print_style or color_mode_options else 1, gap="small")
+            block_index = 0
+            with control_blocks[block_index]:
+                st.markdown("<div class='upload-control-block'>", unsafe_allow_html=True)
+                st.markdown(f"<div class='upload-mini-label'>{t('Copies')}</div>", unsafe_allow_html=True)
+                copies = st.number_input(
+                    f"{quantity_label} #{index}",
+                    min_value=1,
+                    max_value=500,
+                    value=1,
+                    key=f"file_copies_{index}_{uploaded_file.name}",
                     label_visibility="collapsed",
                 )
+                st.markdown("</div>", unsafe_allow_html=True)
+            block_index += 1
+
+            if show_print_style:
+                with control_blocks[block_index]:
+                    st.markdown("<div class='upload-control-block'>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='upload-mini-label'>{t('Side')}</div>", unsafe_allow_html=True)
+                    print_style_key = st.radio(
+                        f"Print style #{index}",
+                        list(print_style_map.keys()),
+                        index=0,
+                        key=f"file_print_style_{index}_{uploaded_file.name}",
+                        horizontal=True,
+                        label_visibility="collapsed",
+                    )
+                    st.markdown("</div>", unsafe_allow_html=True)
                 print_style = print_style_map[print_style_key]
+                block_index += 1
             else:
                 print_style = ""
 
             if color_mode_options:
-                controls[3].markdown(f"<div class='upload-mini-label'>{t('Mode')}</div>", unsafe_allow_html=True)
-                radio_options = [reverse_color_mode_map.get(option, option) for option in color_mode_options]
-                default_mode = reverse_color_mode_map.get(DEFAULT_COLOR_MODE, radio_options[0])
-                color_mode_key = controls[3].radio(
-                    f"Mode #{index}",
-                    radio_options,
-                    index=radio_options.index(default_mode) if default_mode in radio_options else 0,
-                    key=f"file_color_mode_{index}_{uploaded_file.name}",
-                    horizontal=True,
-                    label_visibility="collapsed",
-                )
+                with control_blocks[block_index]:
+                    st.markdown("<div class='upload-control-block'>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='upload-mini-label'>{t('Mode')}</div>", unsafe_allow_html=True)
+                    radio_options = [reverse_color_mode_map.get(option, option) for option in color_mode_options]
+                    default_mode = reverse_color_mode_map.get(DEFAULT_COLOR_MODE, radio_options[0])
+                    color_mode_key = st.radio(
+                        f"Mode #{index}",
+                        radio_options,
+                        index=radio_options.index(default_mode) if default_mode in radio_options else 0,
+                        key=f"file_color_mode_{index}_{uploaded_file.name}",
+                        horizontal=True,
+                        label_visibility="collapsed",
+                    )
+                    st.markdown("</div>", unsafe_allow_html=True)
                 color_mode = color_mode_map.get(color_mode_key, color_mode_key)
             else:
                 color_mode = ""
@@ -249,6 +291,7 @@ def build_file_overrides(
                 note_parts.append(f"{t('Mode')}: {reverse_color_mode_map.get(color_mode, color_mode)}")
             if note_parts:
                 st.markdown(f"<div class='upload-note-chip'>{' | '.join(note_parts)}</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
         overrides.append(
             {
