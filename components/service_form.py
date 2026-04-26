@@ -53,8 +53,12 @@ def prepare_camera_capture(captured, name: str = "camera_capture.jpg", crop_box:
 
 
 def _camera_enabled(key: str) -> bool:
-    if st.button("📷", key=f"{key}_open", help="Open camera", type="secondary"):
-        st.session_state[key] = True
+    is_open = bool(st.session_state.get(key, False))
+    label = "✕" if is_open else "📷"
+    help_text = "Close camera" if is_open else "Open camera"
+    if st.button(label, key=f"{key}_toggle", help=help_text, type="secondary"):
+        st.session_state[key] = not is_open
+        st.rerun()
     return bool(st.session_state.get(key, False))
 
 

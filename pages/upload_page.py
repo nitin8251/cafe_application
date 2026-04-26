@@ -217,8 +217,12 @@ def render_upload_page(identity: dict) -> None:
             with upload_cols[0]:
                 uploaded_files = st.file_uploader(uploader_label, accept_multiple_files=True, type=None)
             with upload_cols[1]:
-                if st.button("📷", key=f"{camera_state_key}_open", help=t("Take document photo"), type="secondary"):
-                    st.session_state[camera_state_key] = True
+                camera_open = bool(st.session_state.get(camera_state_key, False))
+                camera_label = "✕" if camera_open else "📷"
+                camera_help = t("Close camera") if camera_open else t("Take document photo")
+                if st.button(camera_label, key=f"{camera_state_key}_toggle", help=camera_help, type="secondary"):
+                    st.session_state[camera_state_key] = not camera_open
+                    st.rerun()
             if st.session_state.get(camera_state_key, False):
                 st.caption(t("On mobile, choose the rear/back camera from your browser camera switcher if it opens selfie mode."))
                 captured_file = st.camera_input(
