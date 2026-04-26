@@ -23,6 +23,9 @@ def apply_global_styles() -> None:
                     linear-gradient(180deg, #fffaf2 0%, #fbf3e6 48%, #f7ead9 100%);
                 color: var(--shell-ink) !important;
             }
+            .stApp * {
+                box-sizing: border-box;
+            }
             .stApp,
             .stApp p,
             .stApp label,
@@ -127,6 +130,15 @@ def apply_global_styles() -> None:
                 background: rgba(255,255,255,0.92) !important;
                 box-shadow: 0 8px 18px rgba(64, 45, 31, 0.05) !important;
             }
+            .stTextInput input,
+            .stTextArea textarea,
+            .stNumberInput input,
+            .stDateInput input,
+            .stSelectbox [data-baseweb="select"],
+            .stMultiSelect [data-baseweb="select"],
+            .stFileUploader [data-testid="stFileUploaderDropzone"] {
+                color-scheme: light !important;
+            }
             .stSelectbox [data-baseweb="select"] *,
             .stMultiSelect [data-baseweb="select"] *,
             .stSelectbox [data-baseweb="select"] svg,
@@ -155,12 +167,12 @@ def apply_global_styles() -> None:
                 box-shadow: 0 8px 18px rgba(64, 45, 31, 0.05) !important;
             }
             .compact-upload-control {
-                max-width: 15rem;
+                max-width: 13.5rem;
                 margin-left: auto;
             }
             .compact-upload-control [data-testid="stFileUploaderDropzone"] {
-                min-height: 3.75rem !important;
-                padding: 0.52rem 0.7rem !important;
+                min-height: 3.35rem !important;
+                padding: 0.42rem 0.58rem !important;
                 display: flex !important;
                 align-items: center !important;
                 gap: 0.8rem !important;
@@ -171,6 +183,16 @@ def apply_global_styles() -> None:
             }
             .compact-upload-control [data-testid="stFileUploaderDropzone"] small {
                 white-space: nowrap !important;
+            }
+            .compact-upload-control [data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"] {
+                min-width: 5.5rem !important;
+            }
+            .camera-button-cell .stButton > button {
+                min-width: 2.75rem !important;
+                width: 2.75rem !important;
+                min-height: 2.75rem !important;
+                padding: 0 !important;
+                font-size: 1.05rem !important;
             }
             .stFileUploader [data-testid="stFileUploaderDropzone"] * {
                 color: #2f2219 !important;
@@ -241,6 +263,10 @@ def apply_global_styles() -> None:
                 color: #2f2219;
                 border-right: 1px solid rgba(64,45,31,0.18);
             }
+            section[data-testid="stSidebar"] > div {
+                overflow-y: auto !important;
+                padding-bottom: 2rem !important;
+            }
             section[data-testid="stSidebar"] * {
                 color: inherit;
             }
@@ -299,8 +325,9 @@ def apply_global_styles() -> None:
             }
             @media (max-width: 640px) {
                 .block-container {
-                    padding-left: 0.8rem !important;
-                    padding-right: 0.8rem !important;
+                    padding-left: 0.72rem !important;
+                    padding-right: 0.72rem !important;
+                    padding-top: 0.5rem !important;
                     max-width: 100vw !important;
                 }
                 .shell-banner {
@@ -315,10 +342,20 @@ def apply_global_styles() -> None:
                 div[data-testid="stHorizontalBlock"] {
                     gap: 0.45rem !important;
                 }
+                div[data-testid="stHorizontalBlock"] > div {
+                    min-width: 0 !important;
+                }
                 .stButton > button {
                     min-height: 2.65rem !important;
                     padding-left: 0.55rem !important;
                     padding-right: 0.55rem !important;
+                }
+                .stTextInput input,
+                .stNumberInput input,
+                .stTextArea textarea,
+                .stSelectbox [data-baseweb="select"] {
+                    min-height: 2.85rem !important;
+                    font-size: 1rem !important;
                 }
                 .stFileUploader [data-testid="stFileUploaderDropzone"] {
                     min-height: 3.8rem !important;
@@ -332,13 +369,35 @@ def apply_global_styles() -> None:
                     min-height: 3.45rem !important;
                     padding: 0.45rem 0.55rem !important;
                 }
+                .camera-button-cell .stButton > button {
+                    width: 2.65rem !important;
+                    min-width: 2.65rem !important;
+                }
                 section[data-testid="stSidebar"] {
                     min-width: min(92vw, 360px) !important;
                     max-width: min(92vw, 360px) !important;
                 }
+                section[data-testid="stSidebar"] h1 {
+                    font-size: 1.25rem !important;
+                    line-height: 1.2 !important;
+                }
                 .sidebar-panel {
-                    padding: 0.8rem !important;
+                    padding: 0.72rem !important;
                     border-radius: 18px !important;
+                    margin: 0.45rem 0 0.55rem !important;
+                }
+                .sidebar-panel-title {
+                    font-size: 0.95rem !important;
+                }
+                .sidebar-panel-caption {
+                    font-size: 0.78rem !important;
+                    margin-bottom: 0 !important;
+                }
+                div[data-testid="stMetric"] {
+                    background: rgba(255,255,255,0.72);
+                    border: 1px solid rgba(64,45,31,0.16);
+                    border-radius: 14px;
+                    padding: 0.55rem 0.65rem;
                 }
             }
             @media (max-width: 900px) {

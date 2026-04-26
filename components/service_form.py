@@ -1,11 +1,13 @@
+import base64
 from datetime import date
 from io import BytesIO
 from pathlib import Path
 from dataclasses import dataclass
 
 import streamlit as st
-from PIL import Image, ImageDraw
+from PIL import Image
 
+from custom_components.browser_camera import browser_camera
 from services.catalog import get_photo_size_options
 from services.photo_layout import build_single_photo_document
 
@@ -52,58 +54,49 @@ def prepare_camera_capture(captured, name: str = "camera_capture.jpg", crop_box:
     return PreparedUpload(safe_name, captured.getvalue(), getattr(captured, "type", "image/jpeg") or "image/jpeg")
 
 
+def prepare_browser_camera_capture(camera_payload: dict | None, name: str = "camera_capture.jpg"):
+    if not camera_payload or not camera_payload.get("dataUrl"):
+        return None
+
+    try:
+        header, encoded = camera_payload["dataUrl"].split(",", 1)
+    except ValueError:
+        return None
+
+    mime_type = camera_payload.get("mimeType", "image/jpeg") or "image/jpeg"
+    suffix = ".jpg" if "jpeg" in mime_type or "jpg" in mime_type else ".png"
+    safe_name = Path(name).with_suffix(suffix).name
+    return PreparedUpload(safe_name, base64.b64decode(encoded), mime_type)
+
+
 def _camera_enabled(key: str) -> bool:
     is_open = bool(st.session_state.get(key, False))
     label = "✕" if is_open else "📷"
     help_text = "Close camera" if is_open else "Open camera"
-    if st.button(label, key=f"{key}_toggle", help=help_text, type="secondary"):
+    st.markdown("<div class='camera-button-cell'>", unsafe_allow_html=True)
+    clicked = st.button(label, key=f"{key}_toggle", help=help_text, type="secondary")
+    st.markdown("</div>", unsafe_allow_html=True)
+    if clicked:
         st.session_state[key] = not is_open
         st.rerun()
     return bool(st.session_state.get(key, False))
 
 
-def _crop_overlay_preview(image: Image.Image, crop_box: tuple[int, int, int, int]) -> Image.Image:
-    preview = image.convert("RGBA")
-    overlay = Image.new("RGBA", preview.size, (15, 23, 42, 105))
-    mask = Image.new("L", preview.size, 180)
-    draw_mask = ImageDraw.Draw(mask)
-    draw_mask.rectangle(crop_box, fill=0)
-    preview.alpha_composite(Image.composite(overlay, Image.new("RGBA", preview.size, (0, 0, 0, 0)), mask))
-
-    draw = ImageDraw.Draw(preview)
-    line_width = max(3, round(min(preview.size) * 0.008))
-    draw.rectangle(crop_box, outline=(255, 66, 66, 255), width=line_width)
-    return preview.convert("RGB")
+def render_browser_camera_capture(camera_payload: dict | None, name: str, key_prefix: str, t=lambda text: text):
+    return prepare_browser_camera_capture(camera_payload, name)
 
 
-def render_camera_capture(captured, name: str, key_prefix: str, t=lambda text: text):
-    if captured is None:
-        return None
-
-    crop_box = None
-    if st.checkbox(t("Crop photo"), key=f"{key_prefix}_crop_enabled", help=t("Adjust edges before adding this camera photo.")):
-        image = Image.open(BytesIO(captured.getvalue())).convert("RGB")
-        width, height = image.size
-        crop_cols = st.columns(4)
-        left_pct = crop_cols[0].slider(t("Left"), 0, 90, 0, key=f"{key_prefix}_crop_left")
-        top_pct = crop_cols[1].slider(t("Top"), 0, 90, 0, key=f"{key_prefix}_crop_top")
-        right_pct = crop_cols[2].slider(t("Right"), 10, 100, 100, key=f"{key_prefix}_crop_right")
-        bottom_pct = crop_cols[3].slider(t("Bottom"), 10, 100, 100, key=f"{key_prefix}_crop_bottom")
-
-        left = round(width * left_pct / 100)
-        top = round(height * top_pct / 100)
-        right = round(width * right_pct / 100)
-        bottom = round(height * bottom_pct / 100)
-
-        if right <= left or bottom <= top:
-            st.warning(t("Crop area is too small. Adjust the edges."))
-        else:
-            crop_box = (left, top, right, bottom)
-            preview_cols = st.columns(2)
-            preview_cols[0].image(_crop_overlay_preview(image, crop_box), caption=t("Selected crop area"), use_container_width=True)
-            preview_cols[1].image(image.crop(crop_box), caption=t("Final cropped photo"), use_container_width=True)
-
-    return prepare_camera_capture(captured, name, crop_box)
+def render_live_camera(label: str, key: str, t=lambda text: text):
+    st.caption(t("Use Switch for front/back camera. After capture, drag the red crop box and resize it from the corners."))
+    payload = browser_camera(
+        key=key,
+        label=label,
+        preferred_facing_mode="environment",
+        height=430,
+    )
+    if payload is None:
+        st.info(t("If camera access does not open here, allow camera permission in the browser and try again."))
+    return payload
 
 
 def render_optional_notes(
@@ -186,34 +179,35 @@ def render_document_uploader(
     labels = []
     for index, item in enumerate(upload_labels, start=1):
         with st.container(border=True):
-            row = st.columns([1.45, 0.7, 0.18], vertical_alignment="center", gap="small")
+            row = st.columns([1.45, 0.95], vertical_alignment="center", gap="medium")
             with row[0]:
                 st.markdown(f"**{item}**")
                 st.caption(t("Optional attachment for this service.") if optional else t("Upload the matching proof for this item."))
             with row[1]:
                 captured = None
                 camera_state_key = f"{key_prefix}_camera_enabled_{index}"
-                st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
-                uploaded = st.file_uploader(
-                    f"{t('Upload')} {item}",
-                    key=f"{key_prefix}_doc_{index}",
-                    label_visibility="collapsed",
-                    accept_multiple_files=False,
-                    type=None,
-                )
-                st.markdown("</div>", unsafe_allow_html=True)
-            with row[2]:
-                camera_open = _camera_enabled(camera_state_key)
+                action_cols = st.columns([0.82, 0.18], vertical_alignment="center", gap="small")
+                with action_cols[0]:
+                    st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
+                    uploaded = st.file_uploader(
+                        f"{t('Upload')} {item}",
+                        key=f"{key_prefix}_doc_{index}",
+                        label_visibility="collapsed",
+                        accept_multiple_files=False,
+                        type=None,
+                    )
+                    st.markdown("</div>", unsafe_allow_html=True)
+                with action_cols[1]:
+                    camera_open = _camera_enabled(camera_state_key)
             if camera_open:
                 with row[1]:
-                    st.caption(t("Use the browser camera switcher for rear camera on mobile."))
-                    captured = st.camera_input(
+                    captured = render_live_camera(
                         f"{t('Take photo')} {item}",
                         key=f"{key_prefix}_camera_{index}",
-                        help=t("Use the device camera to capture this document directly."),
+                        t=t,
                     )
             if uploaded is None and captured is not None:
-                uploaded = render_camera_capture(captured, f"{item}_{index}.jpg", f"{key_prefix}_camera_crop_{index}", t=t)
+                uploaded = render_browser_camera_capture(captured, f"{item}_{index}.jpg", f"{key_prefix}_camera_crop_{index}", t=t)
             if uploaded is not None:
                 convert_to_pdf = False
                 target_size_kb = 0
@@ -316,7 +310,7 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
 
     captured_other = None
     other_camera_state_key = f"{key_prefix}_other_camera_enabled"
-    other_upload_cols = st.columns([0.82, 0.18], vertical_alignment="center", gap="small")
+    other_upload_cols = st.columns([0.78, 0.22], vertical_alignment="center", gap="small")
     with other_upload_cols[0]:
         st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
         raw_uploads = st.file_uploader(
@@ -330,12 +324,12 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
     with other_upload_cols[1]:
         other_camera_open = _camera_enabled(other_camera_state_key)
     if other_camera_open:
-        captured_other = st.camera_input(
+        captured_other = render_live_camera(
             t("Take photo for other document"),
             key=f"{key_prefix}_other_camera",
-            help=t("Use the device camera to capture an extra document directly."),
+            t=t,
         )
-    camera_upload = render_camera_capture(captured_other, "other_document_camera.jpg", f"{key_prefix}_other_camera_crop", t=t)
+    camera_upload = render_browser_camera_capture(captured_other, "other_document_camera.jpg", f"{key_prefix}_other_camera_crop", t=t)
     all_uploads = list(raw_uploads or [])
     if camera_upload is not None:
         all_uploads.append(camera_upload)

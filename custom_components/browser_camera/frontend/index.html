@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browser Camera</title>
+  <script src="https://unpkg.com/streamlit-component-lib@2.0.0/dist/index.js"></script>
+  <style>
+    :root {
+      --ink: #2f2219;
+      --muted: #7a695b;
+      --panel: rgba(255, 255, 255, 0.96);
+      --panel-soft: rgba(255, 248, 238, 0.98);
+      --border: rgba(64, 45, 31, 0.26);
+      --accent: #b45309;
+      --danger: #dc2626;
+      --crop: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: sans-serif;
+      touch-action: manipulation;
+    }
+
+    body {
+      margin: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .camera-shell {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-soft) 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 0.85rem;
+      box-shadow: 0 8px 20px rgba(64, 45, 31, 0.08);
+    }
+
+    .camera-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .camera-title {
+      font-size: 0.96rem;
+      font-weight: 800;
+    }
+
+    .camera-badge {
+      font-size: 0.74rem;
+      color: var(--muted);
+      background: rgba(180, 83, 9, 0.12);
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+      white-space: nowrap;
+    }
+
+    .camera-stage {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #120d0a;
+      aspect-ratio: 3 / 4;
+      min-height: 260px;
+      user-select: none;
+    }
+
+    video,
+    canvas,
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      inset: 0;
+      border: 2px solid rgba(255, 255, 255, 0.16);
+      pointer-events: none;
+    }
+
+    .camera-crop-box {
+      position: absolute;
+      border: 3px solid var(--crop);
+      border-radius: 16px;
+      box-shadow: 0 0 0 999px rgba(15, 23, 42, 0.22);
+      cursor: move;
+      display: none;
+      touch-action: none;
+    }
+
+    .camera-crop-box.active {
+      display: block;
+    }
+
+    .camera-crop-handle {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: white;
+      border: 2px solid var(--crop);
+    }
+
+    .camera-crop-handle.nw { top: -9px; left: -9px; cursor: nwse-resize; }
+    .camera-crop-handle.ne { top: -9px; right: -9px; cursor: nesw-resize; }
+    .camera-crop-handle.sw { bottom: -9px; left: -9px; cursor: nesw-resize; }
+    .camera-crop-handle.se { bottom: -9px; right: -9px; cursor: nwse-resize; }
+
+    .camera-status {
+      margin-top: 0.7rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      min-height: 1.1rem;
+    }
+
+    .camera-actions {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.8rem;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      border-radius: 14px;
+      min-height: 2.7rem;
+      padding: 0.55rem 0.7rem;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+      color: #fff;
+      border-color: rgba(64, 45, 31, 0.18);
+    }
+
+    button.warn {
+      color: var(--danger);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .camera-shell {
+        padding: 0.7rem;
+      }
+
+      .camera-actions {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="camera-shell">
+    <div class="camera-head">
+      <div class="camera-title" id="camera-label">Camera</div>
+      <div class="camera-badge" id="camera-badge">Back camera</div>
+    </div>
+
+    <div class="camera-stage" id="camera-stage">
+      <video id="camera-video" autoplay playsinline muted></video>
+      <img id="camera-preview" class="hidden" alt="Captured preview" />
+      <canvas id="camera-canvas" class="hidden"></canvas>
+      <div class="camera-overlay"></div>
+      <div class="camera-crop-box" id="camera-crop-box">
+        <div class="camera-crop-handle nw" data-handle="nw"></div>
+        <div class="camera-crop-handle ne" data-handle="ne"></div>
+        <div class="camera-crop-handle sw" data-handle="sw"></div>
+        <div class="camera-crop-handle se" data-handle="se"></div>
+      </div>
+    </div>
+
+    <div class="camera-status" id="camera-status">Preparing camera...</div>
+
+    <div class="camera-actions">
+      <button id="switch-camera" type="button">Switch</button>
+      <button class="primary" id="capture-camera" type="button">Capture</button>
+      <button class="primary hidden" id="use-camera" type="button">Use Photo</button>
+      <button class="warn" id="retake-camera" type="button">Retake</button>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById("camera-video");
+    const preview = document.getElementById("camera-preview");
+    const canvas = document.getElementById("camera-canvas");
+    const stage = document.getElementById("camera-stage");
+    const cropBoxEl = document.getElementById("camera-crop-box");
+    const cameraLabel = document.getElementById("camera-label");
+    const cameraBadge = document.getElementById("camera-badge");
+    const cameraStatus = document.getElementById("camera-status");
+    const captureButton = document.getElementById("capture-camera");
+    const useButton = document.getElementById("use-camera");
+    const switchButton = document.getElementById("switch-camera");
+    const retakeButton = document.getElementById("retake-camera");
+
+    let stream = null;
+    let cameras = [];
+    let selectedIndex = 0;
+    let preferredFacingMode = "environment";
+    let capturedImage = null;
+    let cropRect = null;
+    let dragState = null;
+
+    function setStatus(message) {
+      cameraStatus.textContent = message || "";
+    }
+
+    function setBadge(label) {
+      cameraBadge.textContent = label || "Camera";
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function setButtons() {
+      const hasCapture = Boolean(capturedImage);
+      captureButton.disabled = !stream || hasCapture;
+      switchButton.disabled = cameras.length <= 1 || hasCapture;
+      retakeButton.disabled = !hasCapture;
+      useButton.disabled = !hasCapture;
+      useButton.classList.toggle("hidden", !hasCapture);
+      captureButton.classList.toggle("hidden", hasCapture);
+    }
+
+    function stopStream() {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+        stream = null;
+      }
+    }
+
+    function updateCropBox() {
+      if (!cropRect) {
+        cropBoxEl.classList.remove("active");
+        return;
+      }
+      cropBoxEl.classList.add("active");
+      cropBoxEl.style.left = `${cropRect.x}px`;
+      cropBoxEl.style.top = `${cropRect.y}px`;
+      cropBoxEl.style.width = `${cropRect.width}px`;
+      cropBoxEl.style.height = `${cropRect.height}px`;
+    }
+
+    function resetCropBox() {
+      const width = stage.clientWidth;
+      const height = stage.clientHeight;
+      cropRect = {
+        x: width * 0.12,
+        y: height * 0.12,
+        width: width * 0.76,
+        height: height * 0.76,
+      };
+      updateCropBox();
+    }
+
+    function showLiveView() {
+      preview.classList.add("hidden");
+      video.classList.remove("hidden");
+      capturedImage = null;
+      cropRect = null;
+      updateCropBox();
+      setButtons();
+      Streamlit.setComponentValue(null);
+    }
+
+    function showPreview(dataUrl) {
+      capturedImage = dataUrl;
+      preview.src = dataUrl;
+      preview.classList.remove("hidden");
+      video.classList.add("hidden");
+      resetCropBox();
+      setStatus("Drag the red crop box, resize it from corners, then use the photo.");
+      setButtons();
+      Streamlit.setFrameHeight(document.body.scrollHeight + 12);
+    }
+
+    function pickInitialCameraIndex() {
+      if (!cameras.length) {
+        return 0;
+      }
+      const preferredIndex = cameras.findIndex((camera) => {
+        const label = (camera.label || "").toLowerCase();
+        return preferredFacingMode === "environment"
+          ? label.includes("back") || label.includes("rear") || label.includes("environment")
+          : label.includes("front") || label.includes("user");
+      });
+      return preferredIndex >= 0 ? preferredIndex : 0;
+    }
+
+    async function refreshDevices() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      cameras = devices.filter((device) => device.kind === "videoinput");
+      selectedIndex = Math.min(selectedIndex, Math.max(cameras.length - 1, 0));
+      if (!cameras.length) {
+        setBadge("No camera");
+      } else {
+        setBadge(cameras[selectedIndex]?.label || `Camera ${selectedIndex + 1}`);
+      }
+      setButtons();
+    }
+
+    async function startCamera() {
+      stopStream();
+      showLiveView();
+      setStatus("Opening camera...");
+
+      const selectedCamera = cameras[selectedIndex];
+      const constraints = {
+        audio: false,
+        video: selectedCamera
+          ? { deviceId: { exact: selectedCamera.deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+          : { facingMode: { ideal: preferredFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      };
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (error) {
+        if (!selectedCamera) {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+        } else {
+          throw error;
+        }
+      }
+
+      video.srcObject = stream;
+      await video.play();
+      await refreshDevices();
+      if (!selectedCamera && cameras.length) {
+        selectedIndex = pickInitialCameraIndex();
+      }
+      setBadge(cameras[selectedIndex]?.label || (preferredFacingMode === "environment" ? "Back camera" : "Front camera"));
+      setStatus("Camera ready. Use Switch to change front/back.");
+      setButtons();
+      Streamlit.setFrameHeight(document.body.scrollHeight + 12);
+    }
+
+    async function switchCamera() {
+      if (cameras.length <= 1) {
+        setStatus("Only one camera is available on this device.");
+        return;
+      }
+      selectedIndex = (selectedIndex + 1) % cameras.length;
+      await startCamera();
+    }
+
+    function capturePhoto() {
+      if (!stream || !video.videoWidth || !video.videoHeight) {
+        setStatus("Camera is not ready yet.");
+        return;
+      }
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext("2d");
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      showPreview(canvas.toDataURL("image/jpeg", 0.95));
+    }
+
+    async function retakePhoto() {
+      await startCamera();
+    }
+
+    function applyCropAndSend() {
+      if (!capturedImage || !cropRect) {
+        return;
+      }
+      const image = new Image();
+      image.onload = () => {
+        const scaleX = image.naturalWidth / preview.clientWidth;
+        const scaleY = image.naturalHeight / preview.clientHeight;
+        const sx = Math.round(cropRect.x * scaleX);
+        const sy = Math.round(cropRect.y * scaleY);
+        const sw = Math.round(cropRect.width * scaleX);
+        const sh = Math.round(cropRect.height * scaleY);
+
+        const exportCanvas = document.createElement("canvas");
+        exportCanvas.width = sw;
+        exportCanvas.height = sh;
+        const exportContext = exportCanvas.getContext("2d");
+        exportContext.drawImage(image, sx, sy, sw, sh, 0, 0, sw, sh);
+        Streamlit.setComponentValue({
+          dataUrl: exportCanvas.toDataURL("image/jpeg", 0.95),
+          mimeType: "image/jpeg",
+          cameraLabel: cameras[selectedIndex]?.label || "",
+          crop: { x: sx, y: sy, width: sw, height: sh },
+        });
+        setStatus("Cropped photo sent to the order form.");
+      };
+      image.src = capturedImage;
+    }
+
+    function pointerPoint(event) {
+      const point = event.touches ? event.touches[0] : event;
+      const rect = stage.getBoundingClientRect();
+      return {
+        x: point.clientX - rect.left,
+        y: point.clientY - rect.top,
+      };
+    }
+
+    function beginDrag(event) {
+      if (!capturedImage || !cropRect) {
+        return;
+      }
+      event.preventDefault();
+      const point = pointerPoint(event);
+      const handle = event.target.dataset.handle || "move";
+      dragState = {
+        handle,
+        startX: point.x,
+        startY: point.y,
+        rect: { ...cropRect },
+      };
+    }
+
+    function moveDrag(event) {
+      if (!dragState || !cropRect) {
+        return;
+      }
+      event.preventDefault();
+      const point = pointerPoint(event);
+      const dx = point.x - dragState.startX;
+      const dy = point.y - dragState.startY;
+      const stageWidth = stage.clientWidth;
+      const stageHeight = stage.clientHeight;
+      const minSize = 48;
+      let next = { ...dragState.rect };
+
+      if (dragState.handle === "move") {
+        next.x = clamp(dragState.rect.x + dx, 0, stageWidth - dragState.rect.width);
+        next.y = clamp(dragState.rect.y + dy, 0, stageHeight - dragState.rect.height);
+      } else {
+        if (dragState.handle.includes("n")) {
+          const bottom = dragState.rect.y + dragState.rect.height;
+          next.y = clamp(dragState.rect.y + dy, 0, bottom - minSize);
+          next.height = bottom - next.y;
+        }
+        if (dragState.handle.includes("s")) {
+          next.height = clamp(dragState.rect.height + dy, minSize, stageHeight - dragState.rect.y);
+        }
+        if (dragState.handle.includes("w")) {
+          const right = dragState.rect.x + dragState.rect.width;
+          next.x = clamp(dragState.rect.x + dx, 0, right - minSize);
+          next.width = right - next.x;
+        }
+        if (dragState.handle.includes("e")) {
+          next.width = clamp(dragState.rect.width + dx, minSize, stageWidth - dragState.rect.x);
+        }
+      }
+
+      cropRect = next;
+      updateCropBox();
+    }
+
+    function endDrag() {
+      dragState = null;
+    }
+
+    async function handleRender(event) {
+      const args = event.detail.args || {};
+      preferredFacingMode = args.preferredFacingMode || "environment";
+      cameraLabel.textContent = args.label || "Camera";
+      Streamlit.setFrameHeight(args.height || document.body.scrollHeight + 12);
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setStatus("This browser does not support direct camera access here.");
+          captureButton.disabled = true;
+          switchButton.disabled = true;
+          retakeButton.disabled = true;
+          useButton.disabled = true;
+          return;
+        }
+        if (!stream && !capturedImage) {
+          await refreshDevices();
+          selectedIndex = pickInitialCameraIndex();
+          await startCamera();
+        }
+      } catch (error) {
+        setStatus(error?.message || "Camera permission was blocked.");
+        captureButton.disabled = true;
+        switchButton.disabled = true;
+        retakeButton.disabled = true;
+        useButton.disabled = true;
+      }
+    }
+
+    captureButton.addEventListener("click", capturePhoto);
+    useButton.addEventListener("click", applyCropAndSend);
+    switchButton.addEventListener("click", () => {
+      switchCamera().catch((error) => setStatus(error?.message || "Could not switch camera."));
+    });
+    retakeButton.addEventListener("click", () => {
+      retakePhoto().catch((error) => setStatus(error?.message || "Could not reopen camera."));
+    });
+
+    cropBoxEl.addEventListener("mousedown", beginDrag);
+    cropBoxEl.addEventListener("touchstart", beginDrag, { passive: false });
+    window.addEventListener("mousemove", moveDrag);
+    window.addEventListener("touchmove", moveDrag, { passive: false });
+    window.addEventListener("mouseup", endDrag);
+    window.addEventListener("touchend", endDrag);
+
+    window.addEventListener("beforeunload", stopStream);
+    window.addEventListener(Streamlit.RENDER_EVENT, handleRender);
+    Streamlit.setComponentReady();
+    Streamlit.setFrameHeight(document.body.scrollHeight + 12);
+    setButtons();
+  </script>
+</body>
+</html>

@@ -186,6 +186,34 @@ def _apply_manager_table_styles() -> None:
                 letter-spacing: 0.05em;
                 margin-bottom: 0.55rem;
             }
+            @media (max-width: 720px) {
+                .manager-table-head {
+                    display: none;
+                }
+                .manager-job-card {
+                    padding-right: 0;
+                }
+                .manager-job-title {
+                    font-size: 1.05rem;
+                }
+                .manager-job-subline {
+                    font-size: 0.86rem;
+                    word-break: break-word;
+                }
+                .manager-cell-label {
+                    margin-top: 0.55rem;
+                }
+                .manager-row-wrap [data-testid="stButton"] button,
+                .manager-row-wrap [data-testid="stDownloadButton"] button {
+                    min-height: 2.55rem !important;
+                    font-size: 0.84rem !important;
+                    padding: 0.42rem 0.35rem !important;
+                }
+                div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapper"]:has(.manager-row-wrap) {
+                    padding: 0.55rem !important;
+                    border-radius: 18px !important;
+                }
+            }
         </style>
         """,
         unsafe_allow_html=True,
@@ -678,6 +706,57 @@ def _date_groups(
     return group_orders_by_date(orders, prefix, date_field=date_field)
 
 
+def _filter_orders_by_date_range(
+    orders: list[dict],
+    start_date,
+    end_date,
+    date_field: str,
+) -> list[dict]:
+    filtered = []
+    for order in orders:
+        order_date = _coerce_datetime(order.get(date_field)).astimezone().date()
+        if start_date <= order_date <= end_date:
+            filtered.append(order)
+    return filtered
+
+
+def _render_date_filter_controls(section_key: str, label: str) -> tuple:
+    today = datetime.now().astimezone().date()
+    yesterday = today - timedelta(days=1)
+    mode_key = f"{section_key}_date_mode"
+    mode_options = ["Today", "Yesterday", "Last 7 Days", "Custom Range", "All Dates"]
+    mode = st.segmented_control(
+        f"{label} date filter",
+        mode_options,
+        default=st.session_state.get(mode_key, "All Dates"),
+        selection_mode="single",
+    ) or st.session_state.get(mode_key, "All Dates")
+    st.session_state[mode_key] = mode
+
+    if mode == "Today":
+        return today, today, mode
+    if mode == "Yesterday":
+        return yesterday, yesterday, mode
+    if mode == "Last 7 Days":
+        return today - timedelta(days=6), today, mode
+    if mode == "Custom Range":
+        range_cols = st.columns(2)
+        start_date = range_cols[0].date_input(
+            f"{label} start date",
+            value=st.session_state.get(f"{section_key}_start_date", yesterday),
+            key=f"{section_key}_start_date",
+        )
+        end_date = range_cols[1].date_input(
+            f"{label} end date",
+            value=st.session_state.get(f"{section_key}_end_date", today),
+            key=f"{section_key}_end_date",
+        )
+        if end_date < start_date:
+            start_date, end_date = end_date, start_date
+        return start_date, end_date, mode
+    return None, None, mode
+
+
 def _render_date_overview(groups: list[tuple[str, str, list[dict], datetime.date]], prefix: str) -> None:
     today = datetime.now().astimezone().date()
     yesterday = today - timedelta(days=1)
@@ -708,6 +787,39 @@ def _render_date_overview(groups: list[tuple[str, str, list[dict], datetime.date
                 short_date = upload_date.strftime("%d %b %Y")
             index_lines.append(f"| {title} | {len(rows)} | [Go to {short_date}](#{anchor}) |")
         st.markdown("\n".join(index_lines))
+
+
+def _render_pending_group_sections(
+    pending_groups: list[tuple[str, str, list[dict], datetime.date]],
+    manager_identity: dict,
+) -> None:
+    if not pending_groups:
+        st.caption("No pending jobs right now.")
+        return
+
+    today = datetime.now().astimezone().date()
+    yesterday = today - timedelta(days=1)
+    today_groups = [group for group in pending_groups if group[3] == today]
+    yesterday_groups = [group for group in pending_groups if group[3] == yesterday]
+    archived_groups = [group for group in pending_groups if group[3] < yesterday]
+
+    for title, anchor, day_orders, _ in today_groups:
+        st.markdown(f"<div id='{anchor}'></div>", unsafe_allow_html=True)
+        with st.expander(f"{title} ({len(day_orders)})", expanded=True):
+            _render_order_table("Pending Orders", day_orders, manager_identity, f"{anchor}_pending")
+
+    for title, anchor, day_orders, _ in yesterday_groups:
+        st.markdown(f"<div id='{anchor}'></div>", unsafe_allow_html=True)
+        with st.expander(f"{title} ({len(day_orders)})", expanded=False):
+            _render_order_table("Pending Orders", day_orders, manager_identity, f"{anchor}_pending")
+
+    if archived_groups:
+        archived_count = sum(len(rows) for _, _, rows, _ in archived_groups)
+        with st.expander(f"Archived Pending ({archived_count})", expanded=False):
+            for title, anchor, day_orders, _ in archived_groups:
+                st.markdown(f"<div id='{anchor}'></div>", unsafe_allow_html=True)
+                with st.expander(f"{title} ({len(day_orders)})", expanded=False):
+                    _render_order_table("Pending Orders", day_orders, manager_identity, f"{anchor}_pending")
 
 
 def _open_preview(order: dict) -> None:
@@ -766,7 +878,7 @@ def _render_order_table(
         batch_info = batch_map.get(order["id"], {"pickup_code": "-", "count": 1, "position": 1})
         with st.container(border=True):
             st.markdown("<div class='manager-row-wrap'>", unsafe_allow_html=True)
-            row = st.columns([3.8, 1.0, 0.85, 1.8])
+            row = st.columns([3.5, 1.05, 0.9, 2.05], gap="small")
 
             with row[0]:
                 _render_job_cell_safe(order, batch_info)
@@ -913,33 +1025,42 @@ def render_manager_page(identity: dict, manager_identity: dict, is_manager: bool
 
     pending_orders = [row for row in uploads if row.get("status") in {"uploaded", "approved", "printing"}]
     completed_orders = [row for row in uploads if row.get("status") == "completed"]
-    pending_groups = _date_groups(pending_orders, "Pending", date_field="uploaded_at")
-    completed_groups = _date_groups(completed_orders, "Completed", date_field="completed_at")
 
     pending_tab, completed_tab = st.tabs(["Pending Orders", "Completed Orders"])
 
     with pending_tab:
-        _render_photo_merge_studio(pending_orders, manager_identity)
+        pending_start, pending_end, pending_mode = _render_date_filter_controls("pending", "Pending")
+        filtered_pending_orders = (
+            _filter_orders_by_date_range(pending_orders, pending_start, pending_end, "uploaded_at")
+            if pending_start and pending_end
+            else pending_orders
+        )
+        pending_groups = _date_groups(filtered_pending_orders, "Pending", date_field="uploaded_at")
+        _render_photo_merge_studio(filtered_pending_orders, manager_identity)
         _render_date_overview(pending_groups, "Pending")
-        if pending_groups:
-            for title, anchor, day_orders, upload_date in pending_groups:
-                default_open = upload_date >= datetime.now().astimezone().date() - timedelta(days=1)
-                st.markdown(f"<div id='{anchor}'></div>", unsafe_allow_html=True)
-                with st.expander(f"{title} ({len(day_orders)})", expanded=default_open):
-                    _render_order_table("Pending Orders", day_orders, manager_identity, f"{anchor}_pending")
-        else:
-            st.caption("No pending jobs right now.")
+        if pending_mode != "All Dates":
+            st.caption(
+                f"Showing pending records from {pending_start.strftime('%d %b %Y')} to {pending_end.strftime('%d %b %Y')}."
+            )
+        _render_pending_group_sections(pending_groups, manager_identity)
 
     with completed_tab:
+        completed_start, completed_end, completed_mode = _render_date_filter_controls("completed", "Completed")
+        filtered_completed_orders = (
+            _filter_orders_by_date_range(completed_orders, completed_start, completed_end, "completed_at")
+            if completed_start and completed_end
+            else completed_orders
+        )
+        completed_groups = _date_groups(filtered_completed_orders, "Completed", date_field="completed_at")
         recent_completed_3h = len(
             [
-                row for row in completed_orders
+                row for row in filtered_completed_orders
                 if row.get("completed_at") and row.get("completed_at") >= datetime.now(timezone.utc) - timedelta(hours=3)
             ]
         )
         recent_completed_6h = len(
             [
-                row for row in completed_orders
+                row for row in filtered_completed_orders
                 if row.get("completed_at") and row.get("completed_at") >= datetime.now(timezone.utc) - timedelta(hours=6)
             ]
         )
@@ -959,6 +1080,10 @@ def render_manager_page(identity: dict, manager_identity: dict, is_manager: bool
                 st.info("No completed files found in the last 6 hours.")
             st.rerun()
         bulk_cols[2].caption("Bulk delete removes the local file and the completed order record for recently finished work only.")
+        if completed_mode != "All Dates":
+            st.caption(
+                f"Showing completed records from {completed_start.strftime('%d %b %Y')} to {completed_end.strftime('%d %b %Y')}."
+            )
         _render_date_overview(completed_groups, "Completed")
         if completed_groups:
             for title, anchor, day_orders, upload_date in completed_groups:

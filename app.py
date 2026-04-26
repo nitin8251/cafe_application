@@ -2,8 +2,9 @@ from uuid import uuid4
 
 import streamlit as st
 
-from components.ui import apply_global_styles, render_shell_banner, render_workspace_nav
+from components.ui import apply_global_styles, render_page_intro, render_shell_banner, render_workspace_nav
 from pages.dashboard_page import render_dashboard_page
+from pages.knowledge_page import render_knowledge_page
 from pages.manager_page import render_manager_page
 from pages.rates_page import render_rates_page
 from pages.status_page import render_status_page
@@ -18,6 +19,7 @@ WORKSPACE_CAPTIONS = {
     "Manager": "Operate the live queue, completed work, print actions, and retention tasks.",
     "Rates": "Manage pricing, service builder fields, and photo size presets from one place.",
     "Dashboard": "Review revenue, queue pressure, service mix, and repeat-customer movement.",
+    "Knowledge": "Save desk links, working procedures, and handover notes for each service.",
 }
 
 
@@ -132,6 +134,34 @@ def render_auth_panel(identity: dict, manager_settings: dict) -> tuple[bool, dic
     return is_manager, manager_identity
 
 
+def render_inline_manager_unlock(manager_settings: dict) -> None:
+    pin_value = str(manager_settings.get("pin", "")).strip()
+    st.markdown("### Manager Access")
+    st.caption("Enter the manager PIN here if the mobile sidebar is difficult to use.")
+    pin_cols = st.columns([1.2, 1], vertical_alignment="bottom")
+    entered_pin = pin_cols[0].text_input(
+        "Manager PIN",
+        type="password",
+        key="manager_pin_inline",
+        placeholder="Enter manager PIN",
+    )
+    if pin_cols[1].button("Unlock Manager", use_container_width=True, type="primary", key="manager_pin_inline_button"):
+        entered_pin = str(entered_pin).strip()
+        if not pin_value:
+            st.session_state.manager_override = False
+            st.error("Manager PIN is not configured in Streamlit secrets. Add [manager] pin = \"your-pin\".")
+        elif not entered_pin:
+            st.session_state.manager_override = False
+            st.error("Please enter the manager PIN.")
+        elif entered_pin == pin_value:
+            st.session_state.manager_override = True
+            st.success("Manager unlocked.")
+            st.rerun()
+        else:
+            st.session_state.manager_override = False
+            st.error("Incorrect manager PIN.")
+
+
 st.set_page_config(page_title=APP_TITLE, page_icon="🖨️", layout="wide")
 apply_global_styles()
 
@@ -149,11 +179,20 @@ is_manager, manager_identity = render_auth_panel(identity, manager_settings)
 render_shell_banner(APP_TITLE, identity, is_manager)
 
 page = render_workspace_nav(
-    ["Upload", "Track Status", "Manager", "Rates", "Dashboard"],
+    ["Upload", "Track Status", "Manager", "Rates", "Dashboard", "Knowledge"],
     default=st.session_state.get("active_workspace", "Upload"),
     captions=WORKSPACE_CAPTIONS,
 )
 st.session_state.active_workspace = page
+
+if page in {"Manager", "Rates", "Dashboard", "Knowledge"} and not is_manager:
+    render_page_intro(
+        "Manager Locked",
+        "Manager tools are protected. Use Google login or enter the manager PIN below.",
+        eyebrow="Secure Access",
+    )
+    render_inline_manager_unlock(manager_settings)
+    st.stop()
 
 if page == "Upload":
     render_upload_page(identity)
@@ -163,5 +202,7 @@ elif page == "Manager":
     render_manager_page(identity, manager_identity, is_manager)
 elif page == "Rates":
     render_rates_page(is_manager)
+elif page == "Knowledge":
+    render_knowledge_page(is_manager)
 else:
     render_dashboard_page(identity, is_manager)

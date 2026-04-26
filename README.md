@@ -98,6 +98,62 @@ server_metadata_url = "https://accounts.google.com/.well-known/openid-configurat
 - If Google OAuth is still in testing mode, the login account must be added under test users
 - Without this config, the app falls back to guest mode
 
+## WhatsApp Integration Later
+
+WhatsApp Business integration is feasible for this app, but it is intentionally deferred for a later phase.
+
+### Planned flow
+
+1. Customer sends a service keyword like `PAN card`, `PAN correction`, or `Aadhaar update` on WhatsApp.
+2. A webhook receives the message and maps it to the same service catalog used by this app.
+3. WhatsApp sends a guided questionnaire:
+   - customer name
+   - phone number
+   - service option
+   - required documents
+   - notes
+4. The customer uploads files or photos in chat.
+5. The backend stores those files and creates the same order structure used by the Streamlit upload desk.
+6. The manager sees the order in the existing queue with a pickup code.
+
+### What will be needed
+
+- Meta `WhatsApp Business Cloud API`
+- Meta developer app and business verification
+- One WhatsApp Business phone number
+- Public webhook endpoint for incoming messages
+- Conversation state storage per customer phone number
+- Media download and local storage pipeline
+- Integration layer that reuses the existing order creation flow
+
+### Suggested project structure for later
+
+- `api/whatsapp_webhook.py`
+- `services/whatsapp_service.py`
+- `services/whatsapp_flow.py`
+- `services/whatsapp_state.py`
+
+### Pricing note
+
+As of `April 26, 2026`, WhatsApp Business Platform pricing is based on Meta message charges plus any provider markup if a BSP is used.
+
+India reference rates captured for later planning:
+
+- Marketing: about `Rs. 0.8631` per delivered message
+- Utility: about `Rs. 0.1150` per delivered message
+- Authentication: about `Rs. 0.1150` per delivered message
+- Authentication International: about `Rs. 2.3000` where applicable
+
+Official pricing reference:
+
+- `https://developers.facebook.com/docs/whatsapp/pricing`
+
+### Important note
+
+- This should be built as a business workflow assistant for services and orders
+- It should not be designed as a general-purpose AI chatbot inside WhatsApp
+- The existing app service catalog should remain the source of truth for questionnaire steps
+
 ## GitHub Secrets
 
 See:

@@ -1,9 +1,10 @@
 import streamlit as st
 
 from components.service_form import (
-    render_camera_capture,
+    render_browser_camera_capture,
     render_custom_inputs,
     render_document_uploader,
+    render_live_camera,
     render_optional_notes,
     render_other_documents_uploader,
     summarize_custom_inputs,
@@ -225,19 +226,27 @@ def render_upload_page(identity: dict) -> None:
                 camera_open = bool(st.session_state.get(camera_state_key, False))
                 camera_label = "✕" if camera_open else "📷"
                 camera_help = t("Close camera") if camera_open else t("Take document photo")
+                st.markdown("<div class='camera-button-cell'>", unsafe_allow_html=True)
                 if st.button(camera_label, key=f"{camera_state_key}_toggle", help=camera_help, type="secondary"):
                     st.session_state[camera_state_key] = not camera_open
                     st.rerun()
+                st.markdown("</div>", unsafe_allow_html=True)
             if st.session_state.get(camera_state_key, False):
-                st.caption(t("On mobile, choose the rear/back camera from your browser camera switcher if it opens selfie mode."))
-                captured_file = st.camera_input(
+                captured_file = render_live_camera(
                     t("Take document photo"),
                     key=f"generic_camera_{service_name}",
-                    help=t("Use camera if the customer does not have the file ready."),
+                    t=t,
                 )
             if captured_file is not None:
                 uploaded_files = list(uploaded_files or [])
-                uploaded_files.append(render_camera_capture(captured_file, f"{service_name}_camera.jpg", f"generic_camera_crop_{service_name}", t=t))
+                uploaded_files.append(
+                    render_browser_camera_capture(
+                        captured_file,
+                        f"{service_name}_camera.jpg",
+                        f"generic_camera_crop_{service_name}",
+                        t=t,
+                    )
+                )
             checklist_file_labels = []
 
         if service_name == "Passport Photo Print":
