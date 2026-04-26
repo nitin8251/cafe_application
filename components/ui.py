@@ -164,8 +164,11 @@ def apply_global_styles() -> None:
                 box-shadow: 0 8px 18px rgba(64, 45, 31, 0.05) !important;
             }
             .compact-upload-control {
-                max-width: 12rem;
+                max-width: 11.6rem;
                 margin-left: auto;
+            }
+            .upload-camera-row {
+                width: 100%;
             }
             .compact-upload-control [data-testid="stFileUploaderDropzone"] {
                 min-height: 3.35rem !important;
@@ -193,6 +196,12 @@ def apply_global_styles() -> None:
                 font-size: 0.82rem !important;
                 line-height: 1 !important;
                 white-space: nowrap !important;
+            }
+            .compact-camera-action .stButton > button {
+                min-width: 2.85rem !important;
+                max-width: 3.2rem !important;
+                margin-left: auto !important;
+                margin-right: 0 !important;
             }
             .stFileUploader [data-testid="stFileUploaderDropzone"] * {
                 color: #2f2219 !important;
@@ -382,15 +391,54 @@ def apply_global_styles() -> None:
                     max-width: none;
                     margin-left: 0;
                 }
+                .upload-camera-row div[data-testid="stHorizontalBlock"] {
+                    display: grid !important;
+                    grid-template-columns: minmax(0, 1fr) 3rem !important;
+                    gap: 0.45rem !important;
+                    align-items: center !important;
+                }
+                div[data-testid="stHorizontalBlock"]:has(.compact-upload-control):has(.compact-camera-action) {
+                    display: grid !important;
+                    grid-template-columns: minmax(0, 1fr) 3rem !important;
+                    gap: 0.45rem !important;
+                    align-items: center !important;
+                }
+                .upload-camera-row div[data-testid="stHorizontalBlock"] > div {
+                    width: auto !important;
+                    min-width: 0 !important;
+                }
+                div[data-testid="stHorizontalBlock"]:has(.compact-upload-control):has(.compact-camera-action) > div {
+                    width: auto !important;
+                    min-width: 0 !important;
+                }
                 .compact-upload-control [data-testid="stFileUploaderDropzone"] {
-                    min-height: 3.15rem !important;
-                    padding: 0.32rem 0.4rem !important;
+                    min-height: 3rem !important;
+                    padding: 0.28rem 0.34rem !important;
+                    gap: 0.3rem !important;
+                    overflow: hidden !important;
+                    min-width: 0 !important;
+                }
+                .compact-upload-control [data-testid="stFileUploaderDropzone"] button {
+                    min-height: 2.15rem !important;
+                    padding-left: 0.48rem !important;
+                    padding-right: 0.48rem !important;
+                }
+                .compact-upload-control [data-testid="stFileUploaderDropzone"] small {
+                    font-size: 0.68rem !important;
+                    white-space: nowrap !important;
+                }
+                .compact-upload-control [data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"] {
+                    min-width: 0 !important;
+                    max-width: 5.1rem !important;
+                    overflow: hidden !important;
                 }
                 .camera-button-cell .stButton > button {
-                    min-height: 2.45rem !important;
-                    font-size: 0.76rem !important;
-                    padding-left: 0.28rem !important;
-                    padding-right: 0.28rem !important;
+                    min-height: 3rem !important;
+                    width: 3rem !important;
+                    min-width: 3rem !important;
+                    max-width: 3rem !important;
+                    font-size: 0.95rem !important;
+                    padding: 0 !important;
                 }
                 section[data-testid="stSidebar"] {
                     min-width: min(88vw, 330px) !important;

@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 
 
 _component_func = components.declare_component(
-    "browser_camera_drag_crop_v3",
+    "browser_camera_drag_crop_v4",
     path=str((__import__("pathlib").Path(__file__).parent / "frontend").resolve()),
 )
 
@@ -21,6 +21,6 @@ def browser_camera(
         label=label,
         height=height,
         preferredFacingMode=preferred_facing_mode,
-        componentVersion="drag-crop-v3",
+        componentVersion="drag-crop-v4",
         default=None,
     )
