@@ -98,11 +98,15 @@ def render_auth_panel(identity: dict, manager_settings: dict) -> tuple[bool, dic
         manager_override = st.session_state.get("manager_override", False)
         pin_value = manager_settings["pin"]
 
-        if not manager_email_ok and pin_value:
+        if not manager_email_ok:
             entered_pin = st.text_input("Manager PIN", type="password", key="manager_pin", placeholder="Enter manager PIN")
             if st.button("Unlock Manager", use_container_width=True):
-                st.session_state.manager_override = entered_pin == pin_value
-                if not st.session_state.manager_override:
+                if not pin_value:
+                    st.session_state.manager_override = False
+                    st.error("Manager PIN is not configured in Streamlit secrets. Add [manager] pin = \"your-pin\".")
+                else:
+                    st.session_state.manager_override = entered_pin == pin_value
+                if pin_value and not st.session_state.manager_override:
                     st.error("Incorrect manager PIN.")
                 st.rerun()
 
