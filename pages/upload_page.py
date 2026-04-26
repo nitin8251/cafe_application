@@ -215,21 +215,16 @@ def render_upload_page(identity: dict) -> None:
             uploader_label = t("Choose file(s)") if upload_required else t("Attach supporting file(s) if available")
             captured_file = None
             camera_state_key = f"generic_camera_enabled_{service_name}"
-            st.markdown("<div class='upload-camera-row'>", unsafe_allow_html=True)
-            upload_cols = st.columns([0.74, 0.26], vertical_alignment="center", gap="small")
-            with upload_cols[0]:
-                st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
-                uploaded_files = st.file_uploader(uploader_label, accept_multiple_files=True, type=None)
-                st.markdown("</div>", unsafe_allow_html=True)
-            with upload_cols[1]:
-                camera_open = bool(st.session_state.get(camera_state_key, False))
-                camera_label = "X" if camera_open else "📷"
-                camera_help = t("Close camera") if camera_open else t("Take document photo")
-                st.markdown("<div class='camera-button-cell compact-camera-action'>", unsafe_allow_html=True)
-                if st.button(camera_label, key=f"{camera_state_key}_toggle", help=camera_help, type="secondary", use_container_width=True):
-                    st.session_state[camera_state_key] = not camera_open
-                    st.rerun()
-                st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("<div class='required-upload-actions'>", unsafe_allow_html=True)
+            uploaded_files = st.file_uploader(uploader_label, accept_multiple_files=True, type=None)
+            camera_open = bool(st.session_state.get(camera_state_key, False))
+            camera_label = "X" if camera_open else "📷"
+            camera_help = t("Close camera") if camera_open else t("Take document photo")
+            st.markdown("<div class='camera-button-cell compact-camera-action'>", unsafe_allow_html=True)
+            if st.button(camera_label, key=f"{camera_state_key}_toggle", help=camera_help, type="secondary", use_container_width=True):
+                st.session_state[camera_state_key] = not camera_open
+                st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
             if st.session_state.get(camera_state_key, False):
                 captured_file = render_live_camera(

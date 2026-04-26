@@ -7,7 +7,6 @@ from dataclasses import dataclass
 import streamlit as st
 from PIL import Image
 
-from custom_components.browser_camera import browser_camera
 from services.catalog import get_photo_size_options
 from services.photo_layout import build_single_photo_document
 
@@ -55,6 +54,8 @@ def prepare_camera_capture(captured, name: str = "camera_capture.jpg", crop_box:
 
 
 def prepare_browser_camera_capture(camera_payload: dict | None, name: str = "camera_capture.jpg"):
+    if camera_payload is not None and hasattr(camera_payload, "getvalue"):
+        return prepare_camera_capture(camera_payload, name)
     if not camera_payload or not camera_payload.get("dataUrl"):
         return None
 
@@ -87,16 +88,8 @@ def render_browser_camera_capture(camera_payload: dict | None, name: str, key_pr
 
 
 def render_live_camera(label: str, key: str, t=lambda text: text):
-    st.caption(t("Use Switch for front/back camera. After capture, drag the red crop box and resize it from the corners."))
-    payload = browser_camera(
-        key=key,
-        label=label,
-        preferred_facing_mode="environment",
-        height=430,
-    )
-    if payload is None:
-        st.info(t("If camera access does not open here, allow camera permission in the browser and try again."))
-    return payload
+    st.caption(t("Take a document photo. On mobile Chrome, choose the back camera if the browser asks."))
+    return st.camera_input(label, key=key, label_visibility="collapsed")
 
 
 def render_optional_notes(
@@ -178,37 +171,29 @@ def render_document_uploader(
     uploads = []
     labels = []
     for index, item in enumerate(upload_labels, start=1):
-        st.markdown("<div class='required-upload-card'>", unsafe_allow_html=True)
         with st.container(border=True):
-            row = st.columns([1.18, 1.12], vertical_alignment="center", gap="medium")
-            with row[0]:
-                st.markdown(f"**{item}**")
-                st.caption(t("Optional attachment for this service.") if optional else t("Upload the matching proof for this item."))
-            with row[1]:
-                captured = None
-                camera_state_key = f"{key_prefix}_camera_enabled_{index}"
-                st.markdown("<div class='upload-camera-row'>", unsafe_allow_html=True)
-                action_cols = st.columns([0.74, 0.26], vertical_alignment="center", gap="small")
-                with action_cols[0]:
-                    st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
-                    uploaded = st.file_uploader(
-                        f"{t('Upload')} {item}",
-                        key=f"{key_prefix}_doc_{index}",
-                        label_visibility="collapsed",
-                        accept_multiple_files=False,
-                        type=None,
-                    )
-                    st.markdown("</div>", unsafe_allow_html=True)
-                with action_cols[1]:
-                    camera_open = _camera_enabled(camera_state_key)
-                st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("<div class='required-upload-card'>", unsafe_allow_html=True)
+            st.markdown(f"**{item}**")
+            st.caption(t("Optional attachment for this service.") if optional else t("Upload the matching proof for this item."))
+
+            captured = None
+            camera_state_key = f"{key_prefix}_camera_enabled_{index}"
+            st.markdown("<div class='required-upload-actions'>", unsafe_allow_html=True)
+            uploaded = st.file_uploader(
+                f"{t('Upload')} {item}",
+                key=f"{key_prefix}_doc_{index}",
+                label_visibility="collapsed",
+                accept_multiple_files=False,
+                type=None,
+            )
+            camera_open = _camera_enabled(camera_state_key)
+            st.markdown("</div>", unsafe_allow_html=True)
             if camera_open:
-                with row[1]:
-                    captured = render_live_camera(
-                        f"{t('Take photo')} {item}",
-                        key=f"{key_prefix}_camera_{index}",
-                        t=t,
-                    )
+                captured = render_live_camera(
+                    f"{t('Take photo')} {item}",
+                    key=f"{key_prefix}_camera_{index}",
+                    t=t,
+                )
             if uploaded is None and captured is not None:
                 uploaded = render_browser_camera_capture(captured, f"{item}_{index}.jpg", f"{key_prefix}_camera_crop_{index}", t=t)
             if uploaded is not None:
@@ -303,7 +288,7 @@ def render_document_uploader(
                     st.caption(f"{t('Attached')}: {attached_name}")
             else:
                 st.caption(t("No file attached") if optional else t("No file attached yet"))
-        st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
     return uploads, labels
 
@@ -314,20 +299,15 @@ def render_other_documents_uploader(key_prefix: str, title: str = "Other Documen
 
     captured_other = None
     other_camera_state_key = f"{key_prefix}_other_camera_enabled"
-    st.markdown("<div class='upload-camera-row'>", unsafe_allow_html=True)
-    other_upload_cols = st.columns([0.74, 0.26], vertical_alignment="center", gap="small")
-    with other_upload_cols[0]:
-        st.markdown("<div class='compact-upload-control'>", unsafe_allow_html=True)
-        raw_uploads = st.file_uploader(
-            t("Upload other documents"),
-            key=f"{key_prefix}_other_docs",
-            accept_multiple_files=True,
-            type=None,
-            label_visibility="collapsed",
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
-    with other_upload_cols[1]:
-        other_camera_open = _camera_enabled(other_camera_state_key)
+    st.markdown("<div class='required-upload-actions'>", unsafe_allow_html=True)
+    raw_uploads = st.file_uploader(
+        t("Upload other documents"),
+        key=f"{key_prefix}_other_docs",
+        accept_multiple_files=True,
+        type=None,
+        label_visibility="collapsed",
+    )
+    other_camera_open = _camera_enabled(other_camera_state_key)
     st.markdown("</div>", unsafe_allow_html=True)
     if other_camera_open:
         captured_other = render_live_camera(
